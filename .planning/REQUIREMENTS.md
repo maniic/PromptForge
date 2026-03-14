@@ -34,7 +34,7 @@
 ### Community Library
 
 - [x] **LIB-01**: User can save a crafted prompt to the community library with title and author name
-- [ ] **LIB-02**: Library is pre-loaded with seed data (at least 3 example prompts across categories)
+- [x] **LIB-02**: Library is pre-loaded with seed data (at least 3 example prompts across categories)
 
 ### Frontend UX
 
@@ -104,7 +104,7 @@
 | XRAY-04 | Phase 8 | Pending |
 | XRAY-05 | Phase 8 | Pending |
 | LIB-01 | Phase 3 | Complete |
-| LIB-02 | Phase 3 | Pending |
+| LIB-02 | Phase 3 | Complete |
 | UX-01 | Phase 4 | Pending |
 | UX-02 | Phase 4 | Pending |
 | UX-03 | Phase 4 | Pending |

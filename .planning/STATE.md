@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-supabase-community-library/03-01-PLAN.md
-last_updated: "2026-03-14T10:04:39.339Z"
+stopped_at: Completed 03-supabase-community-library/03-02-PLAN.md
+last_updated: "2026-03-14T10:22:49.375Z"
 last_activity: 2026-03-14 — Plan 01-01 complete (granite_service, lifespan, health endpoint)
 progress:
   total_phases: 9
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
   percent: 11
 ---
 
@@ -53,6 +53,7 @@ Progress: [█░░░░░░░░░] 11%
 | Phase 02-forge-pipeline-backend P01 | 3 | 2 tasks | 6 files |
 | Phase 02-forge-pipeline-backend P02 | 2 | 2 tasks | 3 files |
 | Phase 03-supabase-community-library P01 | 5 min | 2 tasks | 8 files |
+| Phase 03-supabase-community-library P02 | 5 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 03-supabase-community-library]: supabase_client() as callable function enables test monkeypatching without resetting module globals
 - [Phase 03-supabase-community-library]: redirect_slashes=False on library router prevents 307 redirect on /api/library without trailing slash
 - [Phase 03-supabase-community-library]: run_in_executor wraps sync supabase-py v2 calls — same pattern as IBM SDK wrapper from Phase 1
+- [Phase 03-supabase-community-library]: Run seed script from project root so backend package resolves (python -m backend.scripts.seed_library)
+- [Phase 03-supabase-community-library]: Batch-insert all seed prompts in single .insert() call rather than looping
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T10:04:39.337Z
-Stopped at: Completed 03-supabase-community-library/03-01-PLAN.md
+Last session: 2026-03-14T10:22:49.373Z
+Stopped at: Completed 03-supabase-community-library/03-02-PLAN.md
 Resume file: None

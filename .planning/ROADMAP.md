@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: IBM Integration** - Validate Granite credentials, async wrapping, and startup health check (completed 2026-03-14)
 - [x] **Phase 2: Forge Pipeline Backend** - 5-call forge pipeline curl-testable with all prompt templates (completed 2026-03-14)
-- [ ] **Phase 3: Supabase + Community Library** - Database schema deployed and library endpoints working
+- [x] **Phase 3: Supabase + Community Library** - Database schema deployed and library endpoints working (completed 2026-03-14)
 - [ ] **Phase 4: Frontend Shell** - Three-column layout, API client wired, end-to-end request from browser
 - [ ] **Phase 5: Core Demo UI** - Before/after comparison, demo presets, IBM API calls panel
 - [ ] **Phase 6: Anatomy Engine Display** - Color-coded anatomy segments with tooltips and quality score
@@ -144,7 +144,7 @@ Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel w
 |-------|----------------|--------|-----------|
 | 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
 | 2. Forge Pipeline Backend | 2/2 | Complete   | 2026-03-14 |
-| 3. Supabase + Community Library | 1/2 | In Progress|  |
+| 3. Supabase + Community Library | 2/2 | Complete   | 2026-03-14 |
 | 4. Frontend Shell | 0/TBD | Not started | - |
 | 5. Core Demo UI | 0/TBD | Not started | - |
 | 6. Anatomy Engine Display | 0/TBD | Not started | - |
