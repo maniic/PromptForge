@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-00-PLAN.md
-last_updated: "2026-03-14T18:26:17.836Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-14T18:27:08.211Z"
 last_activity: 2026-03-14 — Plan 01-01 complete (granite_service, lifespan, health endpoint)
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 11
 ---
 
@@ -56,6 +56,7 @@ Progress: [█░░░░░░░░░] 11%
 | Phase 03-supabase-community-library P02 | 5 | 2 tasks | 2 files |
 | Phase 04-frontend-shell P01 | 7 | 2 tasks | 19 files |
 | Phase 04-frontend-shell P00 | 3 | 2 tasks | 6 files |
+| Phase 04-frontend-shell P02 | 3 min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 04-frontend-shell]: create-next-app creates nested .git in project subdirs; remove it to allow parent repo tracking
 - [Phase 04-frontend-shell]: ThemeProvider uses attribute=class with cool/warm themes; suppressHydrationWarning on html element prevents flash
 - [Phase 04-frontend-shell]: @testing-library/dom installed explicitly as devDependency — required peer dep of @testing-library/react@16 for TypeScript screen export resolution
+- [Phase 04-frontend-shell]: ForgeApp uses layoutId='input-container' for shared layout animation between hero and column-1 on done state
+- [Phase 04-frontend-shell]: MagneticButton omits React drag event handlers from HTMLButtonAttributes spread to avoid motion type conflicts
+- [Phase 04-frontend-shell]: ForgeApp state machine returns to idle on both cancel and error — lets user retry without page reload
 
 ### Pending Todos
 
@@ -101,6 +105,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T18:26:17.834Z
-Stopped at: Completed 04-00-PLAN.md
+Last session: 2026-03-14T18:27:08.209Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
