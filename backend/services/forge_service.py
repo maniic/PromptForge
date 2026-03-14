@@ -1,0 +1,183 @@
+"""
+Forge pipeline service — the 4-call IBM Granite pipeline.
+
+Architecture rules (CLAUDE.md):
+  - ALL AI calls go through granite_service.generate_text only
+  - The pipeline makes EXACTLY 4 Granite calls per forge() invocation
+  - Calls 3A (execute_crafted) and 3B (execute_raw) run via asyncio.gather() simultaneously
+  - Prompt templates loaded from backend/prompts/*.txt — never hardcoded here
+  - All secrets from config.py settings — never os.getenv() directly
+
+Pipeline order:
+  1. Call 1 — detect_category: classify the raw input
+  2. Call 2 — craft_prompt: build expert prompt using category template
+  3. Calls 3A + 3B — execute_crafted and execute_raw in parallel
+  4. Return ForgeResponse with all fields populated
+"""
+
+import asyncio
+import logging
+import time
+from pathlib import Path
+from typing import Optional
+
+from fastapi import BackgroundTasks
+
+from backend.config import settings
+from backend.models.forge import CallTiming, ForgeRequest, ForgeResponse
+from backend.services.granite_service import GraniteError, GraniteResponse, generate_text
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Private helpers
+# ---------------------------------------------------------------------------
+
+
+def _load_template(name: str) -> str:
+    """Load a prompt template by filename from backend/prompts/.
+
+    Resolves the path relative to this file so it works regardless of the
+    working directory the process was started from.
+    """
+    template_path = Path(__file__).parent.parent / "prompts" / name
+    return template_path.read_text(encoding="utf-8")
+
+
+def _detect_category_from_text(text: str) -> str:
+    """Parse the category from Granite's detect_category output.
+
+    Uses substring matching (not equality) on the lowercased text.
+    Priority order:
+      1. vibe_coding / vibe coding / coding
+      2. brainstorm
+      3. qa / question / quality
+      4. Default: brainstorming
+    """
+    lowered = text.lower()
+    if "vibe_coding" in lowered or "vibe coding" in lowered or "coding" in lowered:
+        return "vibe_coding"
+    if "brainstorm" in lowered:
+        return "brainstorming"
+    if "qa" in lowered or "question" in lowered or "quality" in lowered:
+        return "qa"
+    return "brainstorming"
+
+
+async def _log_forge_event(request_input: str, response: ForgeResponse) -> None:
+    """Fire-and-forget: log forge event. NEVER raises — swallows all errors.
+
+    Phase 3 will replace this stub with a real Supabase insert.
+    """
+    try:
+        logger.info(
+            "forge_event: category=%s total_ms=%.0f input_len=%d",
+            response.category,
+            response.total_latency_ms,
+            len(request_input),
+        )
+    except Exception as exc:
+        logger.warning("forge_event log failed (non-fatal): %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Public pipeline function
+# ---------------------------------------------------------------------------
+
+
+async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTasks] = None) -> ForgeResponse:
+    """Execute the 4-call IBM Granite forge pipeline.
+
+    1. Call 1 — detect_category: classify input into vibe_coding / brainstorming / qa
+    2. Call 2 — craft_prompt: generate expert prompt using category-specific template
+    3. Calls 3A + 3B — execute_crafted and execute_raw in parallel via asyncio.gather()
+    4. Build and return ForgeResponse; schedule forge_event logging as background task
+
+    Parameters
+    ----------
+    request:          Validated ForgeRequest with .input field.
+    background_tasks: FastAPI BackgroundTasks for fire-and-forget logging.
+
+    Returns
+    -------
+    ForgeResponse with category, crafted_prompt, crafted_result, raw_result,
+    call_timings (4 entries), and total_latency_ms.
+
+    Raises
+    ------
+    GraniteError if any Granite call fails.
+    """
+    pipeline_start = time.perf_counter()
+    call_timings: list[CallTiming] = []
+
+    # ------------------------------------------------------------------
+    # Call 1: Detect category
+    # ------------------------------------------------------------------
+    detect_template = _load_template("detect_category.txt")
+    detect_prompt = detect_template.format(input=request.input)
+
+    detect_response: GraniteResponse = await generate_text(
+        detect_prompt,
+        call_name="detect_category",
+        max_tokens=20,
+    )
+    call_timings.append(CallTiming(call_name="detect_category", latency_ms=detect_response.latency_ms))
+
+    category = _detect_category_from_text(detect_response.text)
+    logger.debug("Detected category: %s", category)
+
+    # ------------------------------------------------------------------
+    # Call 2: Craft expert prompt using category-specific template
+    # ------------------------------------------------------------------
+    craft_template = _load_template(f"craft_{category}.txt")
+    craft_prompt = craft_template.format(input=request.input)
+
+    craft_response: GraniteResponse = await generate_text(
+        craft_prompt,
+        call_name="craft_prompt",
+        max_tokens=settings.max_tokens_craft,
+    )
+    call_timings.append(CallTiming(call_name="craft_prompt", latency_ms=craft_response.latency_ms))
+
+    crafted_prompt = craft_response.text.strip()
+
+    # ------------------------------------------------------------------
+    # Calls 3A + 3B: Execute crafted prompt and raw input in parallel
+    # ------------------------------------------------------------------
+    execute_crafted_response, execute_raw_response = await asyncio.gather(
+        generate_text(
+            crafted_prompt,
+            call_name="execute_crafted",
+            max_tokens=settings.max_tokens_execute,
+        ),
+        generate_text(
+            request.input,
+            call_name="execute_raw",
+            max_tokens=settings.max_tokens_execute,
+        ),
+    )
+    call_timings.append(CallTiming(call_name="execute_crafted", latency_ms=execute_crafted_response.latency_ms))
+    call_timings.append(CallTiming(call_name="execute_raw", latency_ms=execute_raw_response.latency_ms))
+
+    # ------------------------------------------------------------------
+    # Build response
+    # ------------------------------------------------------------------
+    total_latency_ms = round((time.perf_counter() - pipeline_start) * 1000, 1)
+
+    result = ForgeResponse(
+        category=category,
+        crafted_prompt=crafted_prompt,
+        crafted_result=execute_crafted_response.text,
+        raw_result=execute_raw_response.text,
+        call_timings=call_timings,
+        total_latency_ms=total_latency_ms,
+    )
+
+    # ------------------------------------------------------------------
+    # Schedule fire-and-forget logging (never blocks the response)
+    # ------------------------------------------------------------------
+    if background_tasks is not None:
+        background_tasks.add_task(_log_forge_event, request.input, result)
+
+    return result
