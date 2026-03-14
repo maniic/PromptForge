@@ -37,15 +37,21 @@ interface HeroInputProps {
   onSubmit: (input: string) => void;
   onCancel: () => void;
   isLoading: boolean;
+  initialInput?: string;
 }
 
-export function HeroInput({ onSubmit, onCancel, isLoading }: HeroInputProps) {
+export function HeroInput({ onSubmit, onCancel, isLoading, initialInput }: HeroInputProps) {
   const [input, setInput] = useState('');
   const [isMac, setIsMac] = useState(true);
 
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0);
   }, []);
+
+  // Set initial input from URL param
+  useEffect(() => {
+    if (initialInput) setInput(initialInput);
+  }, [initialInput]);
 
   const canForge = input.trim().length >= 3;
   const charCount = input.length;

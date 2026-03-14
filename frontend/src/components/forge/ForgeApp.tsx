@@ -1,9 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { toast } from 'sonner';
-import { RotateCcw, Scan, Zap } from 'lucide-react';
+import { BookOpen, RotateCcw, Scan, Zap } from 'lucide-react';
+import Link from 'next/link';
 import { forgeApi, formatApiError } from '@/lib/api';
 import type { ForgeResponse } from '@/types/api';
 import { HeroInput } from '@/components/forge/HeroInput';
@@ -15,11 +17,31 @@ type ForgeState = 'idle' | 'loading' | 'done';
 type AppMode = 'forge' | 'xray';
 
 export default function ForgeApp() {
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<AppMode>('forge');
   const [state, setState] = useState<ForgeState>('idle');
   const [result, setResult] = useState<ForgeResponse | null>(null);
   const [inputText, setInputText] = useState('');
+  const [initialInput, setInitialInput] = useState('');
   const abortRef = useRef<AbortController | null>(null);
+  const autoForgedRef = useRef(false);
+
+  // Handle ?q= URL param from library "Use this prompt" links
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q && !autoForgedRef.current) {
+      autoForgedRef.current = true;
+      const decoded = decodeURIComponent(q);
+      setInitialInput(decoded);
+      // Auto-forge after brief delay
+      const timer = setTimeout(() => {
+        handleForge(decoded);
+        window.history.replaceState({}, '', '/');
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   async function handleForge(input: string) {
     setInputText(input);
@@ -68,6 +90,7 @@ export default function ForgeApp() {
               onSubmit={handleForge}
               onCancel={handleCancel}
               isLoading={isLoading}
+              initialInput={initialInput}
             />
             {/* X-Ray link */}
             {!isLoading && (
@@ -77,15 +100,22 @@ export default function ForgeApp() {
                 transition={{ delay: 0.5 }}
                 className="flex justify-center -mt-4 pb-8"
               >
-                <button
-                  onClick={() => setMode('xray')}
-                  className="group flex items-center gap-2 px-4 py-2 text-[11px] font-medium text-[#444] rounded-lg border border-[#181818] bg-transparent hover:text-violet-400 hover:border-violet-500/20 hover:bg-violet-500/5 transition-all duration-300"
-                >
-                  <Scan className="h-3 w-3 transition-colors group-hover:text-violet-400" />
-                  <span>Prompt X-Ray</span>
-                  <span className="text-[#252525]">|</span>
-                  <span className="text-[#333] group-hover:text-violet-400/60">diagnose & upgrade any prompt</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setMode('xray')}
+                    className="group flex items-center gap-2 px-4 py-2 text-[11px] font-medium text-[#444] rounded-lg border border-[#181818] bg-transparent hover:text-violet-400 hover:border-violet-500/20 hover:bg-violet-500/5 transition-all duration-300"
+                  >
+                    <Scan className="h-3 w-3 transition-colors group-hover:text-violet-400" />
+                    <span>Prompt X-Ray</span>
+                  </button>
+                  <Link
+                    href="/library"
+                    className="group flex items-center gap-2 px-4 py-2 text-[11px] font-medium text-[#444] rounded-lg border border-[#181818] bg-transparent hover:text-red-400 hover:border-red-500/20 hover:bg-red-500/5 transition-all duration-300"
+                  >
+                    <BookOpen className="h-3 w-3 transition-colors group-hover:text-red-400" />
+                    <span>Community Library</span>
+                  </Link>
+                </div>
               </motion.div>
             )}
           </motion.div>
@@ -130,6 +160,13 @@ export default function ForgeApp() {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <Link
+                href="/library"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#555] rounded-lg border border-[#1a1a1a] bg-transparent hover:text-red-400 hover:border-red-500/20 transition-all duration-200"
+              >
+                <BookOpen className="h-3 w-3" />
+                Library
+              </Link>
               <button
                 onClick={() => { handleReset(); setMode('xray'); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#555] rounded-lg border border-[#1a1a1a] bg-transparent hover:text-violet-400 hover:border-violet-500/20 transition-all duration-200"
