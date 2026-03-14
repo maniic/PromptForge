@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed .planning/phases/02-forge-pipeline-backend/02-01-PLAN.md
-last_updated: "2026-03-14T04:22:33.161Z"
+stopped_at: Completed .planning/phases/02-forge-pipeline-backend/02-02-PLAN.md
+last_updated: "2026-03-14T04:26:48.655Z"
 last_activity: 2026-03-14 — Plan 01-01 complete (granite_service, lifespan, health endpoint)
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 11
 ---
 
@@ -51,6 +51,7 @@ Progress: [█░░░░░░░░░] 11%
 
 *Updated after each plan completion*
 | Phase 02-forge-pipeline-backend P01 | 3 | 2 tasks | 6 files |
+| Phase 02-forge-pipeline-backend P02 | 2 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 02-forge-pipeline-backend]: Import forge_service symbols inside test functions to keep all 12 tests as RED failures not collection errors
 - [Phase 02-forge-pipeline-backend]: Patch backend.services.forge_service.generate_text not granite_service for correct mock isolation at call boundary
 - [Phase 02-forge-pipeline-backend]: detect_category.txt instructs Granite to output only category name; parser uses substring matching for robustness
+- [Phase 02-forge-pipeline-backend]: forge() accepts optional BackgroundTasks so it can be called in async tests without router context
+- [Phase 02-forge-pipeline-backend]: _log_forge_event in forge_service.py (not router) so tests patch at correct module import boundary
+- [Phase 02-forge-pipeline-backend]: Thin router: GraniteError->502 mapping, BackgroundTasks injection only — no business logic in router
 
 ### Pending Todos
 
@@ -83,6 +87,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T04:22:33.159Z
-Stopped at: Completed .planning/phases/02-forge-pipeline-backend/02-01-PLAN.md
+Last session: 2026-03-14T04:26:48.653Z
+Stopped at: Completed .planning/phases/02-forge-pipeline-backend/02-02-PLAN.md
 Resume file: None
