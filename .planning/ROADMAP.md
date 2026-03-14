@@ -59,7 +59,10 @@ Plans:
   2. `POST /api/library` saves a prompt with title and author name and returns the saved record
   3. `GET /api/library` returns an array of community prompts including at least 3 seed examples
   4. Seed data covers at least one prompt from each category (vibe_coding, brainstorming, qa)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Supabase client, models, library CRUD service/router, tests (TDD)
+- [ ] 03-02-PLAN.md — Schema deployment to Supabase + seed data (3 demo prompts)
 
 ### Phase 4: Frontend Shell
 **Goal**: The three-column layout renders, the API client talks to the backend, and a forge request initiated from the browser returns a response visible in the browser
@@ -141,7 +144,7 @@ Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel w
 |-------|----------------|--------|-----------|
 | 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
 | 2. Forge Pipeline Backend | 2/2 | Complete   | 2026-03-14 |
-| 3. Supabase + Community Library | 0/TBD | Not started | - |
+| 3. Supabase + Community Library | 0/2 | Not started | - |
 | 4. Frontend Shell | 0/TBD | Not started | - |
 | 5. Core Demo UI | 0/TBD | Not started | - |
 | 6. Anatomy Engine Display | 0/TBD | Not started | - |
