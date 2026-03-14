@@ -119,12 +119,12 @@ def test_category_detection_qa():
 
 
 def test_category_detection_default():
-    """_detect_category_from_text defaults to 'brainstorming' on ambiguous text (PIPE-02)."""
+    """_detect_category_from_text defaults to 'one_shot' on ambiguous text (PIPE-02)."""
     from backend.services.forge_service import _detect_category_from_text
 
-    assert _detect_category_from_text("I'm not sure") == "brainstorming"
-    assert _detect_category_from_text("") == "brainstorming"
-    assert _detect_category_from_text("unknown_category") == "brainstorming"
+    assert _detect_category_from_text("I'm not sure") == "one_shot"
+    assert _detect_category_from_text("") == "one_shot"
+    assert _detect_category_from_text("unknown_category") == "one_shot"
 
 
 # ---------------------------------------------------------------------------
