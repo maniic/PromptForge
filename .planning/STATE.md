@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-03-14T18:21:39.940Z"
+stopped_at: Completed 04-00-PLAN.md
+last_updated: "2026-03-14T18:26:17.836Z"
 last_activity: 2026-03-14 — Plan 01-01 complete (granite_service, lifespan, health endpoint)
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 7
   percent: 11
 ---
 
@@ -55,6 +55,7 @@ Progress: [█░░░░░░░░░] 11%
 | Phase 03-supabase-community-library P01 | 5 min | 2 tasks | 8 files |
 | Phase 03-supabase-community-library P02 | 5 | 2 tasks | 2 files |
 | Phase 04-frontend-shell P01 | 7 | 2 tasks | 19 files |
+| Phase 04-frontend-shell P00 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,7 @@ Recent decisions affecting current work:
 - [Phase 04-frontend-shell]: next.config.ts unsupported in Next.js 14; use next.config.mjs instead
 - [Phase 04-frontend-shell]: create-next-app creates nested .git in project subdirs; remove it to allow parent repo tracking
 - [Phase 04-frontend-shell]: ThemeProvider uses attribute=class with cool/warm themes; suppressHydrationWarning on html element prevents flash
+- [Phase 04-frontend-shell]: @testing-library/dom installed explicitly as devDependency — required peer dep of @testing-library/react@16 for TypeScript screen export resolution
 
 ### Pending Todos
 
@@ -99,6 +101,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T18:21:39.937Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-03-14T18:26:17.834Z
+Stopped at: Completed 04-00-PLAN.md
 Resume file: None

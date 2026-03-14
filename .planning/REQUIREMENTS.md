@@ -38,13 +38,13 @@
 
 ### Frontend UX
 
-- [ ] **UX-01**: Main page shows three-column layout (input | crafted prompt/anatomy | results) after forge
-- [ ] **UX-02**: Before first forge, page shows centered single-column input
-- [ ] **UX-03**: Columns 2+3 animate in with slide/fade transition after forge completes
+- [x] **UX-01**: Main page shows three-column layout (input | crafted prompt/anatomy | results) after forge
+- [x] **UX-02**: Before first forge, page shows centered single-column input
+- [x] **UX-03**: Columns 2+3 animate in with slide/fade transition after forge completes
 - [ ] **UX-04**: Three demo preset buttons (vibe code, brainstorm, research) fill input with one click
 - [ ] **UX-05**: IBM API calls panel shows per-call latency breakdown (expandable, collapsed by default)
-- [ ] **UX-06**: Loading state shows spinner + "Forging with IBM Granite..." during pipeline execution
-- [ ] **UX-07**: Error states show useful messages when pipeline fails
+- [x] **UX-06**: Loading state shows spinner + "Forging with IBM Granite..." during pipeline execution
+- [x] **UX-07**: Error states show useful messages when pipeline fails
 
 ### Infrastructure
 
@@ -105,13 +105,13 @@
 | XRAY-05 | Phase 8 | Pending |
 | LIB-01 | Phase 3 | Complete |
 | LIB-02 | Phase 3 | Complete |
-| UX-01 | Phase 4 | Pending |
-| UX-02 | Phase 4 | Pending |
-| UX-03 | Phase 4 | Pending |
+| UX-01 | Phase 4 | Complete |
+| UX-02 | Phase 4 | Complete |
+| UX-03 | Phase 4 | Complete |
 | UX-04 | Phase 5 | Pending |
 | UX-05 | Phase 5 | Pending |
-| UX-06 | Phase 4 | Pending |
-| UX-07 | Phase 4 | Pending |
+| UX-06 | Phase 4 | Complete |
+| UX-07 | Phase 4 | Complete |
 | INFRA-01 | Phase 9 | Pending |
 | INFRA-02 | Phase 3 | Complete |
 | INFRA-03 | Phase 9 | Pending |
