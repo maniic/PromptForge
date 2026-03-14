@@ -1,19 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ForgeApp from '@/components/forge/ForgeApp'
 import type { ForgeResponse } from '@/types/api'
 
-const mockForgeApi = vi.fn()
-const mockFormatApiError = vi.fn(() => 'Test error message')
+const { mockForgeApi, mockFormatApiError } = vi.hoisted(() => ({
+  mockForgeApi: vi.fn(),
+  mockFormatApiError: vi.fn(() => 'Test error message'),
+}))
 
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }))
 
 vi.mock('@/lib/api', () => ({
-  forgeApi: (...args: unknown[]) => mockForgeApi(...args),
-  formatApiError: (...args: unknown[]) => mockFormatApiError(...args),
+  forgeApi: mockForgeApi,
+  formatApiError: mockFormatApiError,
   ApiError: class ApiError extends Error {
     status: number
     detail: string
@@ -24,6 +25,9 @@ vi.mock('@/lib/api', () => ({
     }
   },
 }))
+
+// Import after mocks are set up
+import ForgeApp from '@/components/forge/ForgeApp'
 
 const MOCK_RESPONSE: ForgeResponse = {
   category: 'vibe_coding',
