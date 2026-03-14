@@ -52,7 +52,7 @@
 - [ ] **INFRA-02**: Supabase schema deployed (prompts table + forge_events table + indexes)
 - [ ] **INFRA-03**: Backend deployed to Railway or Replit with Always On
 - [ ] **INFRA-04**: Frontend deployed to Vercel with environment variables configured
-- [ ] **INFRA-05**: IBM watsonx.ai credentials validated at server startup (fail fast, not mid-demo)
+- [x] **INFRA-05**: IBM watsonx.ai credentials validated at server startup (fail fast, not mid-demo)
 
 ## v2 Requirements
 
@@ -116,7 +116,7 @@
 | INFRA-02 | Phase 3 | Pending |
 | INFRA-03 | Phase 9 | Pending |
 | INFRA-04 | Phase 9 | Pending |
-| INFRA-05 | Phase 1 | Pending |
+| INFRA-05 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 31 total

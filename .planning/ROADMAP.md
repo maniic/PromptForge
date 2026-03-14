@@ -12,7 +12,7 @@ PromptForge is built backend-first: Granite integration is the single point of f
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: IBM Integration** - Validate Granite credentials, async wrapping, and startup health check
+- [x] **Phase 1: IBM Integration** - Validate Granite credentials, async wrapping, and startup health check (completed 2026-03-14)
 - [ ] **Phase 2: Forge Pipeline Backend** - 5-call forge pipeline curl-testable with all prompt templates
 - [ ] **Phase 3: Supabase + Community Library** - Database schema deployed and library endpoints working
 - [ ] **Phase 4: Frontend Shell** - Three-column layout, API client wired, end-to-end request from browser
@@ -136,7 +136,7 @@ Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel w
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. IBM Integration | 0/TBD | Not started | - |
+| 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
 | 2. Forge Pipeline Backend | 0/TBD | Not started | - |
 | 3. Supabase + Community Library | 0/TBD | Not started | - |
 | 4. Frontend Shell | 0/TBD | Not started | - |
