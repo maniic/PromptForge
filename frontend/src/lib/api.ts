@@ -1,4 +1,4 @@
-import type { ForgeRequest, ForgeResponse, AnatomyResult, XRayResponse } from "@/types/api";
+import type { ForgeRequest, ForgeResponse, AnatomyResult, XRayResponse, LibrarySummary, LibraryRecord, SaveToLibraryPayload } from "@/types/api";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -85,6 +85,55 @@ export async function reExecuteApi(prompt: string, disabledSegments: string[]): 
   }
   const data = await response.json();
   return data.result as string;
+}
+
+export async function getLibrary(category?: string): Promise<LibrarySummary[]> {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  const url = `${API_BASE}/api/library${params.toString() ? `?${params}` : ""}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<LibrarySummary[]>;
+}
+
+export async function getLibraryPrompt(id: string): Promise<LibraryRecord> {
+  const response = await fetch(`${API_BASE}/api/library/${id}`);
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<LibraryRecord>;
+}
+
+export async function upvotePrompt(id: string): Promise<{ status: string; upvotes: number }> {
+  const response = await fetch(`${API_BASE}/api/library/${id}/upvote`, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<{ status: string; upvotes: number }>;
+}
+
+export async function saveToLibrary(payload: SaveToLibraryPayload): Promise<LibraryRecord> {
+  const response = await fetch(`${API_BASE}/api/library`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<LibraryRecord>;
 }
 
 export function formatApiError(err: unknown): string {

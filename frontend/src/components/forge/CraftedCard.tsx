@@ -20,6 +20,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   vibe_coding: 'bg-red-500/8 text-red-400 border-red-500/20',
   brainstorming: 'bg-orange-500/8 text-orange-400 border-orange-500/20',
   qa: 'bg-amber-500/8 text-amber-400 border-amber-500/20',
+  one_shot: 'bg-sky-500/8 text-sky-400 border-sky-500/20',
 };
 
 export function CraftedCard({
