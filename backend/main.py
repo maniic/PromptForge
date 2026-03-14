@@ -12,8 +12,10 @@ import logging
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.routers import anatomy, forge, health, library
 from backend.services import granite_service
@@ -57,6 +59,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# Global exception handlers — never expose raw tracebacks
+# ---------------------------------------------------------------------------
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Return clean 422 with readable detail, never raw Pydantic internals."""
+    errors = exc.errors()
+    messages = [f"{e.get('loc', ['?'])[-1]}: {e.get('msg', 'invalid')}" for e in errors]
+    return JSONResponse(status_code=422, content={"detail": "; ".join(messages)})
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    """Catch-all: log the real error, return a safe 500 message."""
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Something went wrong. Please try again."},
+    )
+
 
 app.include_router(health.router)
 app.include_router(forge.router)

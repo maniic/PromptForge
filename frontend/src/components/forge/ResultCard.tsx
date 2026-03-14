@@ -69,7 +69,7 @@ export function ResultCard({
                 </span>
               </div>
               <p className="text-[13px] leading-relaxed whitespace-pre-wrap text-[#666] break-words">
-                {rawResult}
+                {rawResult || 'No result returned — try again.'}
               </p>
             </div>
 
@@ -82,7 +82,7 @@ export function ResultCard({
                 </span>
               </div>
               <p className="text-[13px] leading-relaxed whitespace-pre-wrap text-[#ccc] break-words">
-                {craftedResult}
+                {craftedResult || 'No result returned — try again.'}
               </p>
             </div>
 
