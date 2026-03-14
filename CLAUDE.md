@@ -9,7 +9,7 @@ Target prizes: IBM watsonx.ai prize, Top 2 Teams, Bitdeer.
 ## Stack (LOCKED — never suggest alternatives)
 - Frontend: Next.js 14, TypeScript strict, Tailwind CSS, shadcn/ui
 - Backend: FastAPI, Python 3.11, asyncio
-- AI: IBM watsonx.ai ONLY (ibm/granite-3.1-8b-instruct)
+- AI: IBM watsonx.ai ONLY (ibm/granite-3-8b-instruct)
 - DB: Supabase (community prompt library)
 - Deploy: Railway → Replit (backend), Vercel (frontend)
 
