@@ -28,7 +28,14 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <DotGridBackground />
-          <div className="relative z-10">{children}</div>
+          <div className="relative z-10">
+            {children}
+            {/* IBM watsonx.ai badge — always visible */}
+            <div className="fixed bottom-3 right-3 z-50 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0a0a0a]/80 backdrop-blur-sm border border-[#1a1a1a] text-[10px] text-[#444]">
+              <span className="font-semibold text-[#555]">IBM</span>
+              <span>watsonx.ai</span>
+            </div>
+          </div>
           <Toaster
             position="top-right"
             richColors

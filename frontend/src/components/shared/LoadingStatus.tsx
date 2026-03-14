@@ -11,8 +11,8 @@ interface StatusStage {
 
 const STATUS_STAGES: StatusStage[] = [
   { text: 'Detecting category...', ms: 1500 },
-  { text: 'Crafting expert prompt...', ms: 3000 },
-  { text: 'Executing with IBM Granite...', ms: 4000 },
+  { text: 'Crafting your expert prompt with IBM Granite...', ms: 3000 },
+  { text: 'Executing both versions in parallel...', ms: 4000 },
   { text: 'Comparing results...', ms: Infinity },
 ];
 
