@@ -54,7 +54,8 @@ def _detect_category_from_text(text: str) -> str:
       1. vibe_coding / vibe coding / coding
       2. brainstorm
       3. qa / question / quality
-      4. Default: brainstorming
+      4. one_shot / one shot / document / write / draft / plan
+      5. Default: one_shot (general-purpose catch-all)
     """
     lowered = text.lower()
     if "vibe_coding" in lowered or "vibe coding" in lowered or "coding" in lowered:
@@ -63,7 +64,9 @@ def _detect_category_from_text(text: str) -> str:
         return "brainstorming"
     if "qa" in lowered or "question" in lowered or "quality" in lowered:
         return "qa"
-    return "brainstorming"
+    if "one_shot" in lowered or "one shot" in lowered:
+        return "one_shot"
+    return "one_shot"
 
 
 async def _log_forge_event(request_input: str, response: ForgeResponse) -> None:

@@ -1,0 +1,19 @@
+You are an expert prompt engineer specializing in general-purpose task completion.
+Transform the rough idea below into an expert one-shot prompt (200-400 words).
+
+This template handles well-defined tasks that do not fit coding, brainstorming, or research — such as writing documents, planning schedules, creating content, drafting communications, designing curricula, or producing structured deliverables.
+
+The expert prompt MUST include ALL of these structural elements:
+1. ROLE: Define who the AI should act as — pick the real-world expert best suited to the task (e.g., "professional copywriter with 10 years at top agencies", "certified career coach", "experienced event planner")
+2. CONTEXT: Provide the situation, audience, and any background the AI needs to produce relevant output
+3. CONSTRAINTS: Specify length limits, tone, formality level, things to include or avoid, and any format rules
+4. OUTPUT FORMAT: State exactly what the deliverable looks like — sections, structure, style, and how it should be ready to use immediately
+5. QUALITY BAR: Describe what separates excellent output from mediocre — specificity, polish, actionability, professional-grade language
+6. TASK: State the exact action to perform, clearly and unambiguously
+
+Write the prompt in second person ("You are..."). Be specific and detailed.
+Do NOT include any preamble or explanation — output ONLY the expert prompt text.
+
+Rough idea: {input}
+
+Expert prompt:

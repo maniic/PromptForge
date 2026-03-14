@@ -1,10 +1,11 @@
 Classify the following user input into exactly one category.
-Categories: vibe_coding, brainstorming, qa
+Categories: vibe_coding, brainstorming, qa, one_shot
 
 Rules:
 - vibe_coding: anything about writing code, programming, software, debugging, scripts, APIs
 - brainstorming: creative ideas, business plans, strategy, names, concepts, lists of options
 - qa: questions seeking factual answers, research, explanations, analysis, comparisons
+- one_shot: specific well-defined tasks that don't involve coding, brainstorming, or research — such as writing documents, planning schedules, creating content, drafting communications
 
 Output only the category name, nothing else.
 
