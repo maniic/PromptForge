@@ -109,6 +109,10 @@ export default function ThreeColumnLayout({
             collapsed={expanded !== null && expanded !== 1}
             onToggleExpand={() => toggleExpand(1)}
             onDegradedResult={handleDegradedResult}
+            originalInput={input}
+            craftedResult={response.crafted_result}
+            rawResult={response.raw_result}
+            totalLatencyMs={response.total_latency_ms}
           />
         </motion.div>
 

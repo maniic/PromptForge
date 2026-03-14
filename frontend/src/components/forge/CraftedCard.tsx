@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Maximize2, Minimize2, Dna, Loader2, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, Dna, Loader2, Sparkles, BookmarkPlus } from 'lucide-react';
 import { TypewriterText } from '@/components/shared/TypewriterText';
 import { AnatomyView } from '@/components/anatomy/AnatomyView';
+import { SavePromptModal } from '@/components/forge/SavePromptModal';
 import { anatomyApi, reExecuteApi } from '@/lib/api';
 import type { AnatomyResult } from '@/types/api';
 
@@ -14,6 +15,11 @@ interface CraftedCardProps {
   collapsed: boolean;
   onToggleExpand: () => void;
   onDegradedResult?: (result: string | null) => void;
+  // Save-to-library data
+  originalInput?: string;
+  craftedResult?: string;
+  rawResult?: string;
+  totalLatencyMs?: number;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -30,9 +36,14 @@ export function CraftedCard({
   collapsed,
   onToggleExpand,
   onDegradedResult,
+  originalInput,
+  craftedResult,
+  rawResult,
+  totalLatencyMs,
 }: CraftedCardProps) {
   const badgeClass = CATEGORY_COLORS[category] ?? 'bg-white/5 text-[#666] border-white/8';
   const [showAnatomy, setShowAnatomy] = useState(false);
+  const [showSave, setShowSave] = useState(false);
   const [anatomy, setAnatomy] = useState<AnatomyResult | null>(null);
   const [anatomyLoading, setAnatomyLoading] = useState(false);
   const [anatomyError, setAnatomyError] = useState(false);
@@ -134,6 +145,16 @@ export function CraftedCard({
                 <Dna className="h-2.5 w-2.5" />
                 Anatomy
               </button>
+              {originalInput && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowSave(true); }}
+                  aria-label="Save to library"
+                  className="inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider shrink-0 transition-all duration-200 bg-transparent text-[#444] border-[#222] hover:text-red-400 hover:border-red-500/20"
+                >
+                  <BookmarkPlus className="h-2.5 w-2.5" />
+                  Save
+                </button>
+              )}
             </>
           )}
         </div>
@@ -200,6 +221,20 @@ export function CraftedCard({
           />
         )}
       </div>
+
+      {/* Save to Library Modal */}
+      {originalInput && (
+        <SavePromptModal
+          isOpen={showSave}
+          onClose={() => setShowSave(false)}
+          category={category}
+          originalInput={originalInput}
+          craftedPrompt={craftedPrompt}
+          craftedResult={craftedResult ?? ''}
+          rawResult={rawResult ?? ''}
+          totalLatencyMs={totalLatencyMs ?? 0}
+        />
+      )}
     </div>
   );
 }
