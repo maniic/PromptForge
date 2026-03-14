@@ -33,10 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. A test call to `granite_service.py` returns text output from Granite-13b within expected latency
   3. Two simultaneous `generate_text()` calls wrapped in `run_in_executor` complete in parallel (total wall time ≈ 1 call, not 2)
   4. All secrets are loaded via `config.py` settings — no `os.getenv()` calls in service code
-**Plans**: TBD
+**Plans**: 1 plan
 
 ### Phase 2: Forge Pipeline Backend
-**Goal**: `POST /api/forge` returns a complete `ForgeResponse` with category, crafted prompt, both execution results, anatomy segments, and call timings — curl-testable without any frontend
+**Goal**: `POST /api/forge` returns a complete `ForgeResponse` with category, crafted prompt, both execution results, and call timings — curl-testable without any frontend
 **Depends on**: Phase 1
 **Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-07
 **Success Criteria** (what must be TRUE):
@@ -44,8 +44,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Category detection correctly identifies vibe_coding, brainstorming, and qa inputs (test all three)
   3. Crafted prompt is 200-400 words and uses the correct category-specific template
   4. Calls 3A (crafted execution) and 3B (raw execution) run simultaneously — confirmed by total latency ≈ single call time
-  5. Forge events are logged to Supabase in the background without blocking the HTTP response (fire-and-forget)
-**Plans**: TBD
+  5. Forge events are logged in the background without blocking the HTTP response (fire-and-forget)
+**Plans**: 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Pydantic models, prompt templates, and test scaffold (TDD RED)
+- [ ] 02-02-PLAN.md — Forge pipeline service and router implementation (TDD GREEN)
 
 ### Phase 3: Supabase + Community Library
 **Goal**: Database schema is deployed and users can save prompts to and retrieve prompts from the community library
@@ -130,14 +133,14 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9
 
 Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel with Phase 2 if two people are building simultaneously.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
-| 2. Forge Pipeline Backend | 0/TBD | Not started | - |
+| 2. Forge Pipeline Backend | 0/2 | Not started | - |
 | 3. Supabase + Community Library | 0/TBD | Not started | - |
 | 4. Frontend Shell | 0/TBD | Not started | - |
 | 5. Core Demo UI | 0/TBD | Not started | - |
