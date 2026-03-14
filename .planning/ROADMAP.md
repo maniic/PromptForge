@@ -74,7 +74,11 @@ Plans:
   3. During pipeline execution, a spinner and "Forging with IBM Granite..." message is visible
   4. When the backend returns an error, a readable error message appears (not a raw stack trace or blank screen)
   5. End-to-end: user types input, submits, sees loading state, sees response columns animate in
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — Bootstrap Next.js project, theming, API client, types
+- [ ] 04-02-PLAN.md — Hero input experience, ForgeApp state machine, loading/error states
+- [ ] 04-03-PLAN.md — Three-column layout, typewriter, result display, end-to-end wiring
 
 ### Phase 5: Core Demo UI
 **Goal**: Judges can see the before/after comparison immediately, click a demo preset to start, and inspect per-call IBM latency — the visual spine of the demo is polished
@@ -145,7 +149,7 @@ Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel w
 | 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
 | 2. Forge Pipeline Backend | 2/2 | Complete   | 2026-03-14 |
 | 3. Supabase + Community Library | 2/2 | Complete   | 2026-03-14 |
-| 4. Frontend Shell | 0/TBD | Not started | - |
+| 4. Frontend Shell | 0/3 | Not started | - |
 | 5. Core Demo UI | 0/TBD | Not started | - |
 | 6. Anatomy Engine Display | 0/TBD | Not started | - |
 | 7. Anatomy Interactive Toggles | 0/TBD | Not started | - |
