@@ -20,13 +20,41 @@ describe('ThreeColumnLayout', () => {
         response={mockForgeResponse}
       />
     )
-    // Expect the three main column sections to be present
-    expect(screen.getByText(/your input/i)).toBeTruthy()
-    expect(screen.getByText(/crafted prompt/i)).toBeTruthy()
-    // Before/after results section
-    expect(
-      screen.getByText(/test crafted result/i) !== null ||
-      screen.getByText(/test raw result/i) !== null
-    ).toBe(true)
+    // Desktop + mobile both render these headings, so use getAllByText
+    expect(screen.getAllByText(/your input/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/crafted prompt/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/results/i).length).toBeGreaterThan(0)
+  })
+
+  it('displays the user input text', () => {
+    render(
+      <ThreeColumnLayout
+        input="My test forge input"
+        response={mockForgeResponse}
+      />
+    )
+    expect(screen.getAllByText(/my test forge input/i).length).toBeGreaterThan(0)
+  })
+
+  it('shows category badge', () => {
+    render(
+      <ThreeColumnLayout
+        input="Test input"
+        response={mockForgeResponse}
+      />
+    )
+    // Category "vibe_coding" should render as "vibe coding" badge
+    expect(screen.getAllByText(/vibe coding/i).length).toBeGreaterThan(0)
+  })
+
+  it('shows before/after result labels', () => {
+    render(
+      <ThreeColumnLayout
+        input="Test input"
+        response={mockForgeResponse}
+      />
+    )
+    expect(screen.getAllByText(/without promptforge/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/with promptforge/i).length).toBeGreaterThan(0)
   })
 })

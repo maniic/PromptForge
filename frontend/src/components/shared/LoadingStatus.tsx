@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { Loader2 } from 'lucide-react';
 
 interface StatusStage {
   text: string;
@@ -9,10 +10,10 @@ interface StatusStage {
 }
 
 const STATUS_STAGES: StatusStage[] = [
-  { text: 'Detecting category...', ms: 1200 },
-  { text: 'Crafting expert prompt...', ms: 2500 },
-  { text: 'Executing with IBM Granite...', ms: 3500 },
-  { text: 'Almost there...', ms: Infinity },
+  { text: 'Detecting category...', ms: 1500 },
+  { text: 'Crafting expert prompt...', ms: 3000 },
+  { text: 'Executing with IBM Granite...', ms: 4000 },
+  { text: 'Comparing results...', ms: Infinity },
 ];
 
 interface LoadingStatusProps {
@@ -49,17 +50,20 @@ export default function LoadingStatus({ isLoading }: LoadingStatusProps) {
   if (!isLoading) return null;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.p
-        key={stageIdx}
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: 0.25 }}
-        className="text-sm text-muted-foreground"
-      >
-        {STATUS_STAGES[stageIdx].text}
-      </motion.p>
-    </AnimatePresence>
+    <div className="flex items-center gap-3">
+      <Loader2 className="h-3.5 w-3.5 text-red-400/60 animate-spin" />
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={stageIdx}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.2 }}
+          className="text-[12px] text-[#555]"
+        >
+          {STATUS_STAGES[stageIdx].text}
+        </motion.p>
+      </AnimatePresence>
+    </div>
   );
 }

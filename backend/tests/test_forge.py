@@ -26,15 +26,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.models.forge import GraniteResponse
-
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_responses(*texts: str) -> list[GraniteResponse]:
+def _make_responses(*texts: str) -> list:
     """Build a list of GraniteResponse objects for mock side_effect."""
+    from backend.models.forge import GraniteResponse
     return [GraniteResponse(text=t, latency_ms=10.0) for t in texts]
 
 
@@ -189,6 +187,7 @@ async def test_execute_calls_are_parallel():
     — proving asyncio.gather parallelism (PIPE-04).
     """
     from backend.services.forge_service import forge
+    from backend.models.forge import GraniteResponse
 
     call_count = 0
 

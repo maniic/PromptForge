@@ -15,3 +15,36 @@ export interface ForgeResponse {
   call_timings: CallTiming[];
   total_latency_ms: number;
 }
+
+// Anatomy types (Phase 6-7)
+export interface AnatomySegment {
+  type: string;
+  text: string;
+}
+
+export interface AnatomyResult {
+  segments: AnatomySegment[];
+  quality_score: number;
+  missing_elements: string[];
+}
+
+// X-Ray types (Phase 8)
+export interface DiagnosisItem {
+  element: string;
+  explanation: string;
+}
+
+export interface XRayDiagnosis {
+  segments: AnatomySegment[];
+  quality_score: number;
+  missing_elements: string[];
+  diagnosis: DiagnosisItem[];
+}
+
+export interface XRayResponse {
+  diagnosis: XRayDiagnosis;
+  upgraded_prompt: string;
+  original_result: string;
+  upgraded_result: string;
+  total_latency_ms: number;
+}

@@ -1,0 +1,11 @@
+model = "gpt-5.4"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "cached"
+
+[reasoning]
+effort = "medium"
+
+[mcp_servers]
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"

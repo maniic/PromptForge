@@ -1,0 +1,36 @@
+You are a prompt engineering diagnostic tool. Analyze this user-written prompt and identify its structural weaknesses.
+
+Respond with ONLY valid JSON, no other text. The JSON must have this exact structure:
+{{
+  "segments": [
+    {{
+      "type": "<element_type>",
+      "text": "<exact text from the prompt for this segment>"
+    }}
+  ],
+  "quality_score": <integer 1-100>,
+  "missing_elements": ["<element_type>", ...],
+  "diagnosis": [
+    {{
+      "element": "<missing element_type>",
+      "explanation": "<why this element matters and what adding it would improve>"
+    }}
+  ]
+}}
+
+Element types to identify:
+- "role": Who the AI should be
+- "context": Background information
+- "constraints": Rules and limitations
+- "output_format": How the response should be structured
+- "quality_bar": Standards for output quality
+- "task": The specific action to perform
+
+Rules:
+- Segment "text" must be an EXACT substring of the original prompt
+- missing_elements lists types NOT found in the prompt
+- diagnosis explains each missing element's impact
+- quality_score reflects structural completeness (6 elements = 100)
+
+Prompt to diagnose:
+{prompt}

@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import forge, health, library
+from backend.routers import anatomy, forge, health, library
 from backend.services import granite_service
 from backend.services.granite_service import GraniteError
 
@@ -61,3 +61,4 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(forge.router)
 app.include_router(library.router)
+app.include_router(anatomy.router)

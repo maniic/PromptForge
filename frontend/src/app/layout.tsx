@@ -22,9 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} antialiased bg-[#0a0a0b] text-foreground`}
+        className={`${inter.variable} font-sans antialiased bg-[#0a0a0a] text-foreground`}
       >
         <ThemeProvider>
           <DotGridBackground />
@@ -32,7 +32,6 @@ export default function RootLayout({
           <Toaster
             position="top-right"
             richColors
-            closeButton
             duration={5000}
             visibleToasts={3}
           />

@@ -1,0 +1,20 @@
+You are a prompt engineering expert. Upgrade this prompt by adding the missing structural elements.
+
+The current prompt is:
+{prompt}
+
+Missing elements that need to be added: {missing_elements}
+
+Rules:
+- Keep ALL of the original prompt text intact
+- Add the missing elements naturally around the existing text
+- ROLE: Add a clear persona (e.g., "You are a...")
+- CONTEXT: Add relevant background information
+- CONSTRAINTS: Add specific rules and limitations
+- OUTPUT_FORMAT: Specify how the response should be structured
+- QUALITY_BAR: Add standards and examples of good output
+- TASK: Clarify the specific action if unclear
+- The upgraded prompt should be 200-400 words
+- Write the upgraded prompt directly — no explanations or preamble
+
+Upgraded prompt:

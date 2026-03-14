@@ -1,4 +1,4 @@
-import type { ForgeRequest, ForgeResponse } from "@/types/api";
+import type { ForgeRequest, ForgeResponse, AnatomyResult, XRayResponse } from "@/types/api";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -42,6 +42,49 @@ export async function forgeApi(
   }
 
   return response.json() as Promise<ForgeResponse>;
+}
+
+export async function anatomyApi(craftedPrompt: string): Promise<AnatomyResult> {
+  const response = await fetch(`${API_BASE}/api/anatomy`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ crafted_prompt: craftedPrompt }),
+  });
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<AnatomyResult>;
+}
+
+export async function xrayApi(prompt: string): Promise<XRayResponse> {
+  const response = await fetch(`${API_BASE}/api/xray`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
+  });
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  return response.json() as Promise<XRayResponse>;
+}
+
+export async function reExecuteApi(prompt: string, disabledSegments: string[]): Promise<string> {
+  const response = await fetch(`${API_BASE}/api/re-execute`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt, disabled_segments: disabledSegments }),
+  });
+  if (!response.ok) {
+    let detail = "Unknown error";
+    try { const data = await response.json(); detail = data.detail ?? detail; } catch { /* ignore */ }
+    throw new ApiError(response.status, detail);
+  }
+  const data = await response.json();
+  return data.result as string;
 }
 
 export function formatApiError(err: unknown): string {

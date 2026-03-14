@@ -113,11 +113,11 @@ async def generate_text(
                 None,
                 lambda: model.generate_text(prompt=prompt, params=params),
             ),
-            timeout=30.0,
+            timeout=90.0,
         )
     except asyncio.TimeoutError:
         raise GraniteError(
-            f"Granite call timed out ({call_name}): exceeded 30s"
+            f"Granite call timed out ({call_name}): exceeded 90s"
         )
     except Exception as exc:
         raise GraniteError(

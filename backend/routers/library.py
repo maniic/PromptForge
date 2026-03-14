@@ -21,13 +21,13 @@ from backend.services import library_service
 router = APIRouter(prefix="/api/library", tags=["library"], redirect_slashes=False)
 
 
-@router.post("/", response_model=PromptDetail)
+@router.post("", response_model=PromptDetail)
 async def post_library(req: SavePromptRequest) -> PromptDetail:
     """Save a forged prompt to the community library."""
     return await library_service.save_prompt(req)
 
 
-@router.get("/", response_model=list[PromptSummary])
+@router.get("", response_model=list[PromptSummary])
 async def get_library(category: Optional[str] = None) -> list[PromptSummary]:
     """Return community prompts, newest-first. Optionally filter by ?category=."""
     return await library_service.get_prompts(category=category)

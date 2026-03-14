@@ -15,12 +15,12 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: IBM Integration** - Validate Granite credentials, async wrapping, and startup health check (completed 2026-03-14)
 - [x] **Phase 2: Forge Pipeline Backend** - 5-call forge pipeline curl-testable with all prompt templates (completed 2026-03-14)
 - [x] **Phase 3: Supabase + Community Library** - Database schema deployed and library endpoints working (completed 2026-03-14)
-- [ ] **Phase 4: Frontend Shell** - Three-column layout, API client wired, end-to-end request from browser
-- [ ] **Phase 5: Core Demo UI** - Before/after comparison, demo presets, IBM API calls panel
-- [ ] **Phase 6: Anatomy Engine Display** - Color-coded anatomy segments with tooltips and quality score
-- [ ] **Phase 7: Anatomy Interactive Toggles** - Toggle elements on/off with live re-execution feedback
-- [ ] **Phase 8: Prompt X-Ray** - Reverse-engineer, diagnose, and upgrade existing prompts end-to-end
-- [ ] **Phase 9: Deployment + Demo Prep** - Backend and frontend deployed, all demo-critical paths verified live
+- [x] **Phase 4: Frontend Shell** - Three-column layout, API client wired, end-to-end request from browser (completed 2026-03-14)
+- [x] **Phase 5: Core Demo UI** - Before/after comparison, demo presets, IBM API calls panel (completed 2026-03-14)
+- [x] **Phase 6: Anatomy Engine Display** - Color-coded anatomy segments with tooltips and quality score (completed 2026-03-14)
+- [x] **Phase 7: Anatomy Interactive Toggles** - Toggle elements on/off with live re-execution feedback (completed 2026-03-14)
+- [x] **Phase 8: Prompt X-Ray** - Reverse-engineer, diagnose, and upgrade existing prompts end-to-end (completed 2026-03-14)
+- [x] **Phase 9: Deployment + Demo Prep** - Backend and frontend deployed, all demo-critical paths verified live (completed 2026-03-14)
 
 ## Phase Details
 
@@ -150,9 +150,9 @@ Note: Phase 3 (Supabase) depends on Phase 1 only and can be worked in parallel w
 | 1. IBM Integration | 1/1 | Complete   | 2026-03-14 |
 | 2. Forge Pipeline Backend | 2/2 | Complete   | 2026-03-14 |
 | 3. Supabase + Community Library | 2/2 | Complete   | 2026-03-14 |
-| 4. Frontend Shell | 3/4 | In Progress|  |
-| 5. Core Demo UI | 0/TBD | Not started | - |
-| 6. Anatomy Engine Display | 0/TBD | Not started | - |
-| 7. Anatomy Interactive Toggles | 0/TBD | Not started | - |
-| 8. Prompt X-Ray | 0/TBD | Not started | - |
-| 9. Deployment + Demo Prep | 0/TBD | Not started | - |
+| 4. Frontend Shell | 4/4 | Complete   | 2026-03-14 |
+| 5. Core Demo UI | 1/1 | Complete   | 2026-03-14 |
+| 6. Anatomy Engine Display | 1/1 | Complete   | 2026-03-14 |
+| 7. Anatomy Interactive Toggles | 1/1 | Complete   | 2026-03-14 |
+| 8. Prompt X-Ray | 1/1 | Complete   | 2026-03-14 |
+| 9. Deployment + Demo Prep | 1/1 | Complete   | 2026-03-14 |

@@ -1,48 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-interface UseTypewriterOptions {
-  text: string;
-  speedMs?: number;
-  onSeventyFivePercent?: () => void;
-}
+// Track which texts have already been typed out so remounts don't replay
+const completedTexts = new Set<string>();
 
-interface UseTypewriterResult {
-  displayed: string;
-  done: boolean;
-}
-
-export function useTypewriter(
-  text: string,
-  speedMs = 30,
-  onSeventyFivePercent?: () => void
-): UseTypewriterResult {
-  const [index, setIndex] = useState(0);
-  const [seventyFiveTriggered, setSeventyFiveTriggered] = useState(false);
+export function useTypewriter(text: string, speedMs = 5) {
+  const alreadyDone = completedTexts.has(text);
+  const [index, setIndex] = useState(alreadyDone ? text.length : 0);
+  const markedRef = useRef(false);
 
   useEffect(() => {
+    if (completedTexts.has(text)) {
+      setIndex(text.length);
+      return;
+    }
     setIndex(0);
-    setSeventyFiveTriggered(false);
   }, [text]);
 
   useEffect(() => {
-    if (index >= text.length) return;
+    if (index >= text.length) {
+      if (!markedRef.current) {
+        completedTexts.add(text);
+        markedRef.current = true;
+      }
+      return;
+    }
 
     const timer = setInterval(() => {
-      setIndex((prev) => {
-        const next = prev + 1;
-        const pct = next / text.length;
-        if (pct >= 0.75 && !seventyFiveTriggered) {
-          setSeventyFiveTriggered(true);
-          onSeventyFivePercent?.();
-        }
-        return next;
-      });
+      setIndex((prev) => Math.min(prev + 1, text.length));
     }, speedMs);
 
     return () => clearInterval(timer);
-  }, [index, text, speedMs, onSeventyFivePercent, seventyFiveTriggered]);
+  }, [index, text, speedMs]);
 
   return {
     displayed: text.slice(0, index),
@@ -53,23 +43,21 @@ export function useTypewriter(
 interface TypewriterTextProps {
   text: string;
   speedMs?: number;
-  onSeventyFivePercent?: () => void;
   className?: string;
 }
 
 export function TypewriterText({
   text,
-  speedMs = 30,
-  onSeventyFivePercent,
+  speedMs = 5,
   className,
 }: TypewriterTextProps) {
-  const { displayed, done } = useTypewriter(text, speedMs, onSeventyFivePercent);
+  const { displayed, done } = useTypewriter(text, speedMs);
 
   return (
     <span className={className}>
       {displayed}
       {!done && (
-        <span className="animate-pulse">|</span>
+        <span className="typewriter-cursor">|</span>
       )}
     </span>
   );

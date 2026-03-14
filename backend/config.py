@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     watsonx_api_key: str
     watsonx_project_id: str
     watsonx_url: str = "https://us-south.ml.cloud.ibm.com"
-    watsonx_model_id: str = "ibm/granite-3.1-8b-instruct"
+    watsonx_model_id: str = "ibm/granite-3-8b-instruct"
     supabase_url: str
     supabase_anon_key: str
     supabase_service_key: str

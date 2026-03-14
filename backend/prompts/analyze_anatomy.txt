@@ -1,0 +1,31 @@
+You are a prompt engineering analyzer. Given a crafted prompt, identify the structural elements present.
+
+Respond with ONLY valid JSON, no other text. The JSON must have this exact structure:
+{{
+  "segments": [
+    {{
+      "type": "<element_type>",
+      "text": "<exact text from the prompt for this segment>"
+    }}
+  ],
+  "quality_score": <integer 1-100>,
+  "missing_elements": ["<element_type>", ...]
+}}
+
+Element types to look for (in order of appearance):
+- "role": Who the AI should be (e.g., "You are a senior developer...")
+- "context": Background information and situation description
+- "constraints": Rules, limitations, requirements, language/version specs
+- "output_format": How the response should be structured (lists, code blocks, sections)
+- "quality_bar": Standards the output must meet, examples of good vs bad
+- "task": The specific action to perform
+
+Rules:
+- Every segment "text" must be an EXACT substring of the original prompt
+- A segment can be multiple sentences
+- If an element type is not present, include it in "missing_elements"
+- quality_score = (number of element types found / 6) * 100, adjusted for depth and clarity
+- If the prompt is very short or has no structure, return quality_score < 30
+
+Prompt to analyze:
+{prompt}

@@ -4,61 +4,204 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 93%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 93%;
+    --primary: 0 80% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 93%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 0 80% 62%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --destructive-foreground: 0 0% 93%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 80% 55%;
     --radius: 0.5rem;
-    /* Cool theme accent (blue/cyan) — dot color: blue-600 */
-    --dot-color: 37 99 235;
   }
 
-  /* Cool theme: blue/cyan/purple palette */
-  .cool {
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --ring: 224.3 76.3% 48%;
-    --dot-color: 37 99 235;
-  }
-
-  /* Warm theme: amber/orange/gold palette */
-  .warm {
-    --primary: 37.7 92.1% 50.2%;
-    --primary-foreground: 26 83.3% 14.1%;
-    --ring: 32.1 94.6% 43.7%;
-    --dot-color: 217 119 6;
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 93%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 93%;
+    --primary: 0 80% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 93%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 0 80% 62%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 93%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 80% 55%;
   }
 
   * {
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
-    background-color: #0a0a0b;
+    background-color: #0a0a0a;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary) / 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
-/* Dot grid background with radial fade to edges */
+/* ---- Dot grid background ---- */
 .dot-grid-bg {
-  background-image: radial-gradient(circle, rgb(var(--dot-color) / 0.35) 1px, transparent 1px);
-  background-size: 24px 24px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+  background-image: radial-gradient(circle, rgba(255, 80, 80, 0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 100%);
+}
+
+/* ---- Scrollbar ---- */
+.forge-scroll::-webkit-scrollbar { width: 3px; }
+.forge-scroll::-webkit-scrollbar-track { background: transparent; }
+.forge-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 80, 80, 0.2);
+  border-radius: 3px;
+}
+.forge-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 80, 80, 0.4);
+}
+.forge-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 80, 80, 0.2) transparent;
+}
+
+/* ---- Collapsed column fade ---- */
+.collapsed-mask {
+  -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 95%);
+  mask-image: linear-gradient(to bottom, black 20%, transparent 95%);
+}
+
+/* ---- Glass card ---- */
+.glass-card {
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ---- Glow effects ---- */
+.glow-red {
+  box-shadow:
+    0 0 15px rgba(255, 80, 80, 0.06),
+    0 0 50px rgba(255, 80, 80, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.glow-red-strong {
+  box-shadow:
+    0 0 20px rgba(255, 80, 80, 0.12),
+    0 0 60px rgba(255, 80, 80, 0.06),
+    0 0 120px rgba(255, 80, 80, 0.03);
+}
+.glow-violet {
+  box-shadow:
+    0 0 15px rgba(139, 92, 246, 0.08),
+    0 0 50px rgba(139, 92, 246, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* ---- Gradient text ---- */
+.gradient-text-red {
+  background: linear-gradient(135deg, #FF5050 0%, #FF8080 40%, #FF6060 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.gradient-text-violet {
+  background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 40%, #8B5CF6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---- Typewriter cursor ---- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typewriter-cursor {
+  animation: blink 0.8s ease-in-out infinite;
+  color: hsl(var(--primary));
+  font-weight: 300;
+}
+
+/* ---- Loading shimmer ---- */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255, 80, 80, 0.06) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ---- Timing bar fill ---- */
+@keyframes fill-bar {
+  from { width: 0; }
+}
+.animate-fill-bar {
+  animation: fill-bar 0.6s ease-out forwards;
+}
+
+/* ---- Float ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ---- Pulse ring for loading ---- */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 1; }
+  50% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(0.95); opacity: 1; }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* ---- Step connector line ---- */
+.step-line {
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(255, 80, 80, 0.3), rgba(255, 80, 80, 0.05));
+}
+
+/* ---- Card hover lift ---- */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
