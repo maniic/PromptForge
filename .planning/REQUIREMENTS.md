@@ -7,8 +7,8 @@
 
 ### Core Pipeline
 
-- [ ] **PIPE-01**: User can type a rough idea (3-1000 chars) and submit it for forging
-- [ ] **PIPE-02**: System auto-detects prompt category (vibe_coding, brainstorming, qa) via Granite Call 1
+- [x] **PIPE-01**: User can type a rough idea (3-1000 chars) and submit it for forging
+- [x] **PIPE-02**: System auto-detects prompt category (vibe_coding, brainstorming, qa) via Granite Call 1
 - [ ] **PIPE-03**: System crafts an expert one-shot prompt (200-400 words) using category-specific template via Granite Call 2
 - [ ] **PIPE-04**: System executes crafted prompt AND raw input simultaneously via asyncio.gather (Calls 3A + 3B)
 - [ ] **PIPE-05**: User can see before/after comparison — crafted result vs raw result side-by-side
@@ -86,8 +86,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PIPE-01 | Phase 2 | Pending |
-| PIPE-02 | Phase 2 | Pending |
+| PIPE-01 | Phase 2 | Complete |
+| PIPE-02 | Phase 2 | Complete |
 | PIPE-03 | Phase 2 | Pending |
 | PIPE-04 | Phase 2 | Pending |
 | PIPE-05 | Phase 5 | Pending |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed .planning/phases/01-ibm-integration/01-01-PLAN.md
-last_updated: "2026-03-14T03:52:27.846Z"
+stopped_at: Completed .planning/phases/02-forge-pipeline-backend/02-01-PLAN.md
+last_updated: "2026-03-14T04:22:33.161Z"
 last_activity: 2026-03-14 — Plan 01-01 complete (granite_service, lifespan, health endpoint)
 progress:
   total_phases: 9
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 3
+  completed_plans: 2
   percent: 11
 ---
 
@@ -50,6 +50,7 @@ Progress: [█░░░░░░░░░] 11%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 02-forge-pipeline-backend P01 | 3 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Recent decisions affecting current work:
 - [01-01]: Singleton ModelInference with validate=False avoids double API call at startup (Research Pitfall 5)
 - [01-01]: run_in_executor wraps sync IBM SDK to enable true asyncio.gather parallelism
 - [01-01]: config.py needs extra="ignore" via ConfigDict to tolerate NEXT_PUBLIC_* frontend vars in .env
+- [Phase 02-forge-pipeline-backend]: Import forge_service symbols inside test functions to keep all 12 tests as RED failures not collection errors
+- [Phase 02-forge-pipeline-backend]: Patch backend.services.forge_service.generate_text not granite_service for correct mock isolation at call boundary
+- [Phase 02-forge-pipeline-backend]: detect_category.txt instructs Granite to output only category name; parser uses substring matching for robustness
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-14T03:49:05Z
-Stopped at: Completed .planning/phases/01-ibm-integration/01-01-PLAN.md
-Resume file: .planning/phases/01-ibm-integration/01-01-SUMMARY.md
+Last session: 2026-03-14T04:22:33.159Z
+Stopped at: Completed .planning/phases/02-forge-pipeline-backend/02-01-PLAN.md
+Resume file: None
