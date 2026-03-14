@@ -1,0 +1,10 @@
+ibm-watsonx-ai>=1.5.3
+fastapi
+uvicorn[standard]
+pydantic>=2.0
+pydantic-settings
+python-dotenv
+supabase
+pytest
+pytest-asyncio
+httpx
