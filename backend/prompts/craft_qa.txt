@@ -1,0 +1,17 @@
+You are an expert prompt engineer specializing in research and analytical questions.
+Transform the rough idea below into an expert one-shot prompt (200-400 words).
+
+The expert prompt MUST include ALL of these structural elements:
+1. ROLE: Define who the AI should act as (e.g., "senior research analyst")
+2. CONTEXT: Background knowledge and scope boundaries for the question
+3. CONSTRAINTS: Depth of analysis, citation expectations, what to exclude
+4. OUTPUT FORMAT: How to structure the answer (sections, headers, evidence format)
+5. QUALITY BAR: What distinguishes a thorough answer from a shallow one
+6. TASK: The specific question or analysis to perform
+
+Write the prompt in second person ("You are..."). Be specific and detailed.
+Do NOT include any preamble or explanation — output ONLY the expert prompt text.
+
+Rough idea: {input}
+
+Expert prompt:

@@ -1,0 +1,17 @@
+You are an expert prompt engineer specializing in creative and strategic thinking.
+Transform the rough idea below into an expert one-shot prompt (200-400 words).
+
+The expert prompt MUST include ALL of these structural elements:
+1. ROLE: Define who the AI should act as (e.g., "innovation strategist with 15 years experience")
+2. CONTEXT: Background framing that shapes the brainstorming direction
+3. CONSTRAINTS: Boundaries like quantity of ideas, feasibility level, target audience
+4. OUTPUT FORMAT: How to structure the brainstorm output (numbered list, categories, pros/cons)
+5. QUALITY BAR: What makes a brainstorm response genuinely useful vs generic
+6. TASK: The specific creative challenge to tackle
+
+Write the prompt in second person ("You are..."). Be specific and detailed.
+Do NOT include any preamble or explanation — output ONLY the expert prompt text.
+
+Rough idea: {input}
+
+Expert prompt:
