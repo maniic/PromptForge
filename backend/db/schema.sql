@@ -17,11 +17,14 @@ CREATE TABLE IF NOT EXISTS prompts (
     crafted_result    text,
     raw_result        text,
     total_latency_ms  float8,
+    upvotes           integer     NOT NULL DEFAULT 0,
+    is_public         boolean     NOT NULL DEFAULT true,
     created_at        timestamptz NOT NULL DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_prompts_category   ON prompts (category);
 CREATE INDEX IF NOT EXISTS idx_prompts_created_at ON prompts (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_prompts_upvotes    ON prompts (upvotes DESC);
 
 -- ---------------------------------------------------------------------------
 -- forge_events: telemetry log for every /api/forge call

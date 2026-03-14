@@ -31,6 +31,7 @@ class PromptSummary(BaseModel):
     title: str
     author_name: str
     category: str
+    upvotes: int = 0
     created_at: datetime
 
 

@@ -37,3 +37,9 @@ async def get_library(category: Optional[str] = None) -> list[PromptSummary]:
 async def get_library_by_id(prompt_id: str) -> PromptDetail:
     """Return full prompt detail for the given id, or 404 if not found."""
     return await library_service.get_prompt_by_id(prompt_id)
+
+
+@router.post("/{prompt_id}/upvote")
+async def upvote_prompt(prompt_id: str) -> dict:
+    """Increment the upvote count for a community prompt."""
+    return await library_service.upvote_prompt(prompt_id)
