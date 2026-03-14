@@ -27,7 +27,7 @@ describe('ForgeApp', () => {
     render(<ForgeApp />)
     // Expect either a textarea for input or a Forge button
     const textarea = screen.queryByRole('textbox')
-    const forgeButton = screen.queryByText(/forge/i)
+    const forgeButton = screen.queryByRole('button', { name: /forge/i })
     expect(textarea !== null || forgeButton !== null).toBe(true)
   })
 })
