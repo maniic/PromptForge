@@ -36,6 +36,35 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
+_INJECTION_PATTERNS = [
+    "ignore above", "ignore previous", "new instruction",
+    "system prompt", "you are now", "disregard",
+    "forget everything", "override",
+]
+
+
+def _sanitize_input(text: str) -> str:
+    """Strip prompt-injection phrases from user input.
+
+    Case-insensitive substring removal.  Logs a warning when any pattern
+    is found so we have visibility into attempted injections.
+    """
+    original_len = len(text)
+    lowered = text.lower()
+    found = [p for p in _INJECTION_PATTERNS if p in lowered]
+    if found:
+        for pattern in found:
+            # Case-insensitive replace
+            import re
+            text = re.sub(re.escape(pattern), "", text, flags=re.IGNORECASE)
+        text = " ".join(text.split())  # collapse whitespace
+        logger.warning(
+            "Sanitized input (len %d→%d): removed %s",
+            original_len, len(text), found,
+        )
+    return text
+
+
 def _load_template(name: str) -> str:
     """Load a prompt template by filename from backend/prompts/.
 
@@ -130,11 +159,14 @@ async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTask
     pipeline_start = time.perf_counter()
     call_timings: list[CallTiming] = []
 
+    # Sanitize user input before it reaches any template
+    safe_input = _sanitize_input(request.input)
+
     # ------------------------------------------------------------------
     # Call 1: Detect category
     # ------------------------------------------------------------------
     detect_template = _load_template("detect_category.txt")
-    detect_prompt = detect_template.format(input=request.input)
+    detect_prompt = detect_template.format(input=safe_input)
 
     detect_response: GraniteResponse = await generate_text(
         detect_prompt,
@@ -150,7 +182,7 @@ async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTask
     # Call 2: Craft expert prompt using category-specific template
     # ------------------------------------------------------------------
     craft_template = _load_template(f"craft_{category}.txt")
-    craft_prompt = craft_template.format(input=request.input)
+    craft_prompt = craft_template.format(input=safe_input)
 
     craft_response: GraniteResponse = await generate_text(
         craft_prompt,
@@ -171,7 +203,7 @@ async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTask
             max_tokens=settings.max_tokens_execute,
         ),
         generate_text(
-            request.input,
+            safe_input,
             call_name="execute_raw",
             max_tokens=settings.max_tokens_execute,
         ),
