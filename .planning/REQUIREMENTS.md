@@ -33,7 +33,7 @@
 
 ### Community Library
 
-- [ ] **LIB-01**: User can save a crafted prompt to the community library with title and author name
+- [x] **LIB-01**: User can save a crafted prompt to the community library with title and author name
 - [ ] **LIB-02**: Library is pre-loaded with seed data (at least 3 example prompts across categories)
 
 ### Frontend UX
@@ -49,7 +49,7 @@
 ### Infrastructure
 
 - [ ] **INFRA-01**: GET /health returns {"status":"ok"} for uptime verification
-- [ ] **INFRA-02**: Supabase schema deployed (prompts table + forge_events table + indexes)
+- [x] **INFRA-02**: Supabase schema deployed (prompts table + forge_events table + indexes)
 - [ ] **INFRA-03**: Backend deployed to Railway or Replit with Always On
 - [ ] **INFRA-04**: Frontend deployed to Vercel with environment variables configured
 - [x] **INFRA-05**: IBM watsonx.ai credentials validated at server startup (fail fast, not mid-demo)
@@ -103,7 +103,7 @@
 | XRAY-03 | Phase 8 | Pending |
 | XRAY-04 | Phase 8 | Pending |
 | XRAY-05 | Phase 8 | Pending |
-| LIB-01 | Phase 3 | Pending |
+| LIB-01 | Phase 3 | Complete |
 | LIB-02 | Phase 3 | Pending |
 | UX-01 | Phase 4 | Pending |
 | UX-02 | Phase 4 | Pending |
@@ -113,7 +113,7 @@
 | UX-06 | Phase 4 | Pending |
 | UX-07 | Phase 4 | Pending |
 | INFRA-01 | Phase 9 | Pending |
-| INFRA-02 | Phase 3 | Pending |
+| INFRA-02 | Phase 3 | Complete |
 | INFRA-03 | Phase 9 | Pending |
 | INFRA-04 | Phase 9 | Pending |
 | INFRA-05 | Phase 1 | Complete |
