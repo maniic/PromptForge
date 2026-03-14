@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { DotGridBackground } from "@/components/layout/DotGridBackground";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,7 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "PromptForge",
-  description: "Transform rough ideas into expert one-shot prompts using IBM Granite",
+  description:
+    "Transform rough ideas into expert one-shot prompts using IBM Granite",
 };
 
 export default function RootLayout({
@@ -19,8 +23,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased bg-[#0a0a0b] text-foreground`}>
-        {children}
+      <body
+        className={`${inter.variable} antialiased bg-[#0a0a0b] text-foreground`}
+      >
+        <ThemeProvider>
+          <DotGridBackground />
+          <div className="relative z-10">{children}</div>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            duration={5000}
+            visibleToasts={3}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );
