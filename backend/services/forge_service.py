@@ -24,6 +24,7 @@ from typing import Optional
 from fastapi import BackgroundTasks
 
 from backend.config import settings
+from backend.db.supabase_client import supabase_client
 from backend.models.forge import CallTiming, ForgeRequest, ForgeResponse
 from backend.services.granite_service import GraniteError, GraniteResponse, generate_text
 
@@ -66,9 +67,12 @@ def _detect_category_from_text(text: str) -> str:
 
 
 async def _log_forge_event(request_input: str, response: ForgeResponse) -> None:
-    """Fire-and-forget: log forge event. NEVER raises — swallows all errors.
+    """Fire-and-forget: insert a forge_event row into Supabase. NEVER raises.
 
-    Phase 3 will replace this stub with a real Supabase insert.
+    Wraps the synchronous Supabase call in run_in_executor so it does not
+    block the async event loop. The outer try/except ensures any Supabase
+    failure (network error, bad creds, etc.) is silently swallowed — the
+    forge response has already been returned to the caller.
     """
     try:
         logger.info(
@@ -77,6 +81,18 @@ async def _log_forge_event(request_input: str, response: ForgeResponse) -> None:
             response.total_latency_ms,
             len(request_input),
         )
+
+        def _insert():
+            supabase_client().table("forge_events").insert(
+                {
+                    "input_text": request_input,
+                    "category": response.category,
+                    "total_latency_ms": response.total_latency_ms,
+                }
+            ).execute()
+
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, _insert)
     except Exception as exc:
         logger.warning("forge_event log failed (non-fatal): %s", exc)
 

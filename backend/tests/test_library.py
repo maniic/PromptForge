@@ -120,7 +120,9 @@ def test_post_library_saves_prompt():
             from httpx import ASGITransport
             response = asyncio.get_event_loop().run_until_complete(
                 _httpx.AsyncClient(
-                    transport=ASGITransport(app=app), base_url="http://test"
+                    transport=ASGITransport(app=app),
+                    base_url="http://test",
+                    follow_redirects=True,
                 ).post("/api/library", json=_SAVE_BODY)
             )
 
@@ -143,7 +145,9 @@ def test_post_library_validation_missing_title():
     body = {k: v for k, v in _SAVE_BODY.items() if k != "title"}
     response = asyncio.get_event_loop().run_until_complete(
         httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://test"
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://test",
+            follow_redirects=True,
         ).post("/api/library", json=body)
     )
     assert response.status_code == 422, (
@@ -158,7 +162,9 @@ def test_post_library_validation_missing_author():
     body = {k: v for k, v in _SAVE_BODY.items() if k != "author_name"}
     response = asyncio.get_event_loop().run_until_complete(
         httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://test"
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://test",
+            follow_redirects=True,
         ).post("/api/library", json=body)
     )
     assert response.status_code == 422, (
@@ -180,7 +186,9 @@ def test_get_library_returns_list():
     with patch("backend.services.library_service.supabase_client", return_value=mock_client):
         response = asyncio.get_event_loop().run_until_complete(
             httpx.AsyncClient(
-                transport=httpx.ASGITransport(app=app), base_url="http://test"
+                transport=httpx.ASGITransport(app=app),
+                base_url="http://test",
+                follow_redirects=True,
             ).get("/api/library")
         )
 
@@ -225,7 +233,9 @@ def test_get_library_category_filter():
             ]
             response = asyncio.get_event_loop().run_until_complete(
                 httpx.AsyncClient(
-                    transport=httpx.ASGITransport(app=app), base_url="http://test"
+                    transport=httpx.ASGITransport(app=app),
+                    base_url="http://test",
+                    follow_redirects=True,
                 ).get("/api/library?category=vibe_coding")
             )
 
