@@ -20,12 +20,12 @@ if str(_REPO_ROOT) not in sys.path:
 # Patch env vars at module level — MUST happen before any backend import
 # ---------------------------------------------------------------------------
 _FAKE_ENV = {
-    "WATSONX_API_KEY": "test-api-key",
+    "WATSONX_API_KEY": "test-api-key",  # pragma: allowlist secret
     "WATSONX_PROJECT_ID": "test-project-id",
     "WATSONX_URL": "https://us-south.ml.cloud.ibm.com",
     "SUPABASE_URL": "https://test.supabase.co",
     "SUPABASE_ANON_KEY": "test-anon-key",
-    "SUPABASE_SERVICE_KEY": "test-service-key",
+    "SUPABASE_SERVICE_KEY": "test-service-key",  # pragma: allowlist secret
 }
 for _k, _v in _FAKE_ENV.items():
     os.environ.setdefault(_k, _v)
