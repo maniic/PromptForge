@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
+from pydantic import ConfigDict, model_validator
 from functools import lru_cache
 
 
@@ -15,9 +15,23 @@ class Settings(BaseSettings):
     supabase_service_key: str
     next_public_api_url: str = "http://localhost:8000"
     environment: str = "development"
-    max_tokens_craft: int = 500
-    max_tokens_execute: int = 800
+    max_tokens_craft: int = 2500
+    max_tokens_execute: int = 3500
     log_level: str = "INFO"
+
+    @model_validator(mode="after")
+    def enforce_token_minimums(self) -> "Settings":
+        """Ensure token limits are high enough for complete output.
+
+        The .env may contain old low values (500/800) that cause truncation.
+        Enforce minimums so crafted prompts and results are never cut off.
+        """
+        if self.max_tokens_craft < 2500:
+            self.max_tokens_craft = 2500
+        if self.max_tokens_execute < 3500:
+            self.max_tokens_execute = 3500
+        return self
+
 
 @lru_cache()
 def get_settings() -> Settings:
