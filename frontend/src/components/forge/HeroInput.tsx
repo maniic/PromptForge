@@ -64,7 +64,7 @@ export function HeroInput({ onSubmit, onCancel, isLoading, initialInput }: HeroI
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && canForge && !isLoading) {
+    if (e.key === 'Enter' && !e.shiftKey && canForge && !isLoading) {
       e.preventDefault();
       handleSubmit();
     }
@@ -192,9 +192,9 @@ export function HeroInput({ onSubmit, onCancel, isLoading, initialInput }: HeroI
           >
             Press{' '}
             <kbd className="px-1.5 py-0.5 rounded border border-[#1e1e1e] bg-[#111] text-[10px] text-[#555] font-mono">
-              {isMac ? '⌘' : 'Ctrl'}+Enter
+              Enter
             </kbd>{' '}
-            to forge
+            to forge · Shift+Enter for new line
           </motion.p>
         )}
       </div>

@@ -4,7 +4,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(env_file=".env", extra="ignore")
+    model_config = ConfigDict(env_file="backend/.env", extra="ignore")
 
     watsonx_api_key: str
     watsonx_project_id: str
@@ -15,21 +15,15 @@ class Settings(BaseSettings):
     supabase_service_key: str
     next_public_api_url: str = "http://localhost:8000"
     environment: str = "development"
-    max_tokens_craft: int = 2500
-    max_tokens_execute: int = 3500
+    max_tokens_craft: int = 100
+    max_tokens_execute: int = 800
     log_level: str = "INFO"
 
     @model_validator(mode="after")
-    def enforce_token_minimums(self) -> "Settings":
-        """Ensure token limits are high enough for complete output.
-
-        The .env may contain old low values (500/800) that cause truncation.
-        Enforce minimums so crafted prompts and results are never cut off.
-        """
-        if self.max_tokens_craft < 2500:
-            self.max_tokens_craft = 2500
-        if self.max_tokens_execute < 3500:
-            self.max_tokens_execute = 3500
+    def enforce_token_limits(self) -> "Settings":
+        """Hard-cap token limits regardless of .env values."""
+        self.max_tokens_craft = 100
+        self.max_tokens_execute = 800
         return self
 
 

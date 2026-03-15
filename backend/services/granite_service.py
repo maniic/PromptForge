@@ -100,6 +100,7 @@ async def generate_text(
     # Build params dict
     params: dict = {
         GenTextParamsMetaNames.MAX_NEW_TOKENS: max_tokens or settings.max_tokens_craft,
+        GenTextParamsMetaNames.REPETITION_PENALTY: 1.3,
     }
     if temperature is not None:
         params[GenTextParamsMetaNames.TEMPERATURE] = temperature

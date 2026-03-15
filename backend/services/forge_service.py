@@ -192,6 +192,14 @@ async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTask
     call_timings.append(CallTiming(call_name="craft_prompt", latency_ms=craft_response.latency_ms))
 
     crafted_prompt = craft_response.text.strip()
+    # Strip any label prefixes the model may echo back
+    for prefix in ("OUTPUT:", "Improved prompt:", "Detailed request:", "Better prompt:", "output:", "improved prompt:", "detailed request:", "better prompt:"):
+        if crafted_prompt.lower().startswith(prefix.lower()):
+            crafted_prompt = crafted_prompt[len(prefix):].strip()
+            break
+    # Strip model commentary suffixes (e.g. "Note - I did not revise...")
+    import re
+    crafted_prompt = re.split(r'\n*\s*[Nn]ote[\s\-–:]+', crafted_prompt)[0].strip()
 
     # ------------------------------------------------------------------
     # Calls 3A + 3B: Execute crafted prompt and raw input in parallel
@@ -216,11 +224,18 @@ async def forge(request: ForgeRequest, background_tasks: Optional[BackgroundTask
     # ------------------------------------------------------------------
     total_latency_ms = round((time.perf_counter() - pipeline_start) * 1000, 1)
 
+    def _clean(text: str) -> str:
+        """Strip Llama special tokens and trailing junk."""
+        import re
+        text = re.sub(r'<\|[^|>]+\|>', '', text)  # remove <|eom_id|> etc.
+        text = re.sub(r'\(See Below\).*', '', text, flags=re.DOTALL | re.IGNORECASE)
+        return text.strip()
+
     result = ForgeResponse(
         category=category,
         crafted_prompt=crafted_prompt,
-        crafted_result=execute_crafted_response.text,
-        raw_result=execute_raw_response.text,
+        crafted_result=_clean(execute_crafted_response.text),
+        raw_result=_clean(execute_raw_response.text),
         call_timings=call_timings,
         total_latency_ms=total_latency_ms,
     )
