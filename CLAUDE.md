@@ -1,54 +1,66 @@
-# PromptForge — Claude Code operating rules
-# GenAI Genesis 2026 | Team of 2
+# PromptForge Academy — Claude Code operating rules
 
 ## What this is
-Transforms rough ideas into expert one-shot prompts using IBM Granite,
-executes them, shows before/after comparison. Community prompt library.
-Target prizes: IBM watsonx.ai prize, Top 2 Teams, Bitdeer.
+A flight simulator for prompt engineering. Learners write their own prompts;
+IBM Granite runs them against challenge test suites (visible + hidden test
+cases), deterministic checks grade every output, Granite-as-judge scores the
+qualitative rubric, and a Socratic Granite coach gives escalating hints —
+never the answer. The original forge / X-Ray tools live on at /lab.
 
-## Stack (LOCKED — never suggest alternatives)
-- Frontend: Next.js 14, TypeScript strict, Tailwind CSS, shadcn/ui
+## Stack
+- Frontend: Next.js 14 (app router), TypeScript strict, Tailwind CSS, shadcn/ui
 - Backend: FastAPI, Python 3.11, asyncio
-- AI: IBM watsonx.ai ONLY (ibm/granite-3-8b-instruct)
-- DB: Supabase (community prompt library)
-- Deploy: Railway → Replit (backend), Vercel (frontend)
+- AI: IBM watsonx.ai only (Granite; model id from WATSONX_MODEL_ID)
+- DB: Supabase (attempt analytics, community library)
+- Deploy: Railway / Replit (backend), Vercel (frontend)
 
-## Commands
+## Commands (run from repo root unless noted)
+dev_backend:   source backend/venv/bin/activate && uvicorn backend.main:app --reload --port 8000
 dev_frontend:  cd frontend && npm run dev
-dev_backend:   cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8000
-test:          cd backend && source venv/bin/activate && pytest -v
-lint:          cd frontend && npx tsc --noEmit && npm run lint
+test_backend:  source backend/venv/bin/activate && pytest backend/tests -q
+test_frontend: cd frontend && npx vitest run
+typecheck:     cd frontend && npx tsc --noEmit
 build:         cd frontend && npm run build
+Note: `npm run lint` is broken (eslint.config.mjs needs ESLint 9; ESLint 8 is installed).
 
-## Architecture rules — NEVER violate
-1. ALL AI calls go through backend/services/granite_service.py only
-2. The pipeline makes EXACTLY 4 Granite calls per /api/forge request
-3. Calls 3A (crafted) and 3B (raw) MUST run via asyncio.gather() simultaneously
-4. Never call any AI provider other than IBM watsonx.ai
-5. Prompt templates in backend/prompts/*.txt — never hardcoded in Python files
-6. Community library ops via library_service.py only
-7. All secrets from config.py settings — never os.getenv() directly in services
+## Architecture rules
+1. All AI calls go through backend/services/granite_service.py
+   (`chat` for learner prompts, judge, and coach; `generate_text` for legacy Lab paths)
+2. IBM watsonx.ai is the only AI provider
+3. Independent Granite calls run concurrently via asyncio.gather()
+   (e.g. every test case in an attempt — one round trip regardless of N)
+4. LLM prompt text lives in backend/prompts/*.txt, never hardcoded in Python
+5. Challenges are data: backend/curriculum/challenges/*.json + tracks.json.
+   Adding or editing a lesson must not require Python changes
+6. Grading is deterministic first (grading_service.py, pure functions);
+   the Granite judge only scores rubric criteria code can't check
+7. Never leak hidden test inputs, hidden test ids, golden outputs, or the
+   reference prompt through public endpoints (curriculum_service.public_detail)
+8. Any prompt that embeds learner text (judge, coach) must delimit it and
+   instruct the model to ignore instructions inside it
+9. Analytics/logging to Supabase is fire-and-forget and must never fail a request
+10. All secrets via backend/config.py settings — never os.getenv() in services
 
-## Core pipeline (always this order, never skip steps)
-1. Validate ForgeRequest (Pydantic — raise 422 on invalid)
-2. Granite Call 1: detect category → vibe_coding / brainstorming / qa
-3. Load backend/prompts/craft_{category}.txt template
-4. Granite Call 2: craft expert prompt (200-400 words out)
-5. asyncio.gather(execute_prompt(crafted), execute_prompt(raw_input))
-6. Supabase: log forge_event (async, never fail the request if this fails)
-7. Return ForgeResponse with all fields populated
+## Attempt pipeline (learn_service.run_attempt)
+1. Validate AttemptRequest; 422 if the prompt omits any challenge {{variable}}
+2. Render prompt per test case → asyncio.gather(chat × N)
+3. Grade each output with the test case's checks
+4. If the challenge has a rubric: one judge call (failure → score on checks only)
+5. score = 75% checks + 25% judge; pass at challenge.pass_score; stars at 90 / 97
+6. Background-log the attempt; return AttemptResponse
 
-## Demo-critical paths (must work flawlessly)
-POST /api/forge → ForgeResponse with visible before/after difference
-GET /api/library → array of community prompts
-GET /health → {"status":"ok"}
-Frontend three-column: input | crafted prompt typewriter | before/after panels
+## Adding a challenge
+- Every test case needs a `golden_output` that passes all its checks
+- At least one visible and one hidden test case; exactly 3 authored hints
+- starter_prompt and reference_prompt must use every variable
+- tests/test_academy.py enforces all of the above plus "a chatty naive answer fails"
 
-## Context rules
-- /compact at 50% context usage
-- /clear between unrelated tasks
-- One task per session
-- Run /lint-check after every file change
+## Demo-critical paths
+GET  /health → {"status":"ok"}
+GET  /api/tracks, GET /api/challenges/{id}
+POST /api/challenges/{id}/attempt → graded AttemptResponse
+POST /api/coach → hint (falls back to authored hints if Granite fails)
+Frontend: / (Academy) → /challenge/[id] workspace; /lab; /library
 
-## NEVER touch
-.env, docs/ except handoff.md, this CLAUDE.md
+## Never touch
+.env
