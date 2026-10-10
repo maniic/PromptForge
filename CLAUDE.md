@@ -43,6 +43,8 @@ Note: `npm run lint` is broken (eslint.config.mjs needs ESLint 9; ESLint 8 is in
 
 ## Attempt pipeline (learn_service.run_attempt)
 1. Validate AttemptRequest; 422 if the prompt omits any challenge {{variable}}
+   mode "run" = visible tests only, no judge, never passes, not logged;
+   mode "submit" (default) = every test, judged, scored, logged
 2. Render prompt per test case → asyncio.gather(chat × N)
 3. Grade each output with the test case's checks
 4. If the challenge has a rubric: one judge call (failure → score on checks only)
@@ -60,7 +62,15 @@ GET  /health → {"status":"ok"}
 GET  /api/tracks, GET /api/challenges/{id}
 POST /api/challenges/{id}/attempt → graded AttemptResponse
 POST /api/coach → hint (falls back to authored hints if Granite fails)
-Frontend: / (Academy) → /challenge/[id] workspace; /lab; /library
+Frontend: / (landing) → /problems (table) → /challenge/[id] (split-pane IDE:
+problem tabs | prompt editor + test console; Ctrl/⌘+' run, Ctrl/⌘+Enter submit); /lab; /library
+
+## Design system
+Carbon-inspired dark theme. Tokens are CSS vars in globals.css (--pf-*) mapped to
+Tailwind colours: canvas/panel/raised, line, fg/fg-muted/fg-subtle, brand (IBM blue),
+ok/warn/bad, syn-*. Fonts: IBM Plex Sans + Plex Mono. Tailwind opacity modifiers
+(e.g. bg-panel/40) do NOT work on these var colours — use the *-soft tokens or rgba().
+The /lab forge UI keeps its legacy red styling.
 
 ## Never touch
 .env

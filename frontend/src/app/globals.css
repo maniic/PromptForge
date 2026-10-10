@@ -48,6 +48,30 @@
     --ring: 0 80% 55%;
   }
 
+  :root {
+    /* PromptForge Academy tokens — IBM Carbon g100-inspired */
+    --pf-canvas: #0d0e10;
+    --pf-panel: #15161a;
+    --pf-raised: #1c1e23;
+    --pf-line: #26282e;
+    --pf-line-strong: #353840;
+    --pf-fg: #f2f4f8;
+    --pf-fg-muted: #b0b6be;
+    --pf-fg-subtle: #737a84;
+    --pf-brand: #4589ff;
+    --pf-brand-strong: #0f62fe;
+    --pf-brand-soft: rgba(69, 137, 255, 0.12);
+    --pf-ok: #42be65;
+    --pf-ok-soft: rgba(66, 190, 101, 0.12);
+    --pf-warn: #f1c21b;
+    --pf-warn-soft: rgba(241, 194, 27, 0.12);
+    --pf-bad: #fa4d56;
+    --pf-bad-soft: rgba(250, 77, 86, 0.12);
+    --pf-syn-var: #78a9ff;
+    --pf-syn-tag: #be95ff;
+    --pf-syn-label: #3ddbd9;
+  }
+
   * {
     @apply border-border;
   }
@@ -60,7 +84,7 @@
 
   body {
     @apply bg-background text-foreground;
-    background-color: #0a0a0a;
+    background-color: var(--pf-canvas);
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -205,3 +229,11 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
+
+/* ---- Academy editor ---- */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.pf-scroll { scrollbar-width: thin; scrollbar-color: var(--pf-line-strong) transparent; }
+.pf-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.pf-scroll::-webkit-scrollbar-thumb { background: var(--pf-line-strong); border-radius: 8px; }
+.pf-editor::selection { background: rgba(69, 137, 255, 0.35); color: transparent; }

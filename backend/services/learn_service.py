@@ -130,6 +130,12 @@ async def run_attempt(
         )
 
     started = time.perf_counter()
+    submit = request.mode == "submit"
+    cases = [
+        (tc, public_id)
+        for tc, public_id in zip(challenge.test_cases, public_test_ids(challenge))
+        if submit or not tc.hidden
+    ]
 
     responses = await asyncio.gather(
         *(
@@ -138,14 +144,14 @@ async def run_attempt(
                 call_name=f"attempt:{challenge.id}:{tc.id}",
                 max_tokens=settings.max_tokens_attempt,
             )
-            for tc in challenge.test_cases
+            for tc, _ in cases
         )
     )
     outputs = [_clean(r.text) for r in responses]
 
     test_results: list[TestCaseResult] = []
     passed_checks = total_checks = 0
-    for tc, public_id, output in zip(challenge.test_cases, public_test_ids(challenge), outputs):
+    for (tc, public_id), output in zip(cases, outputs):
         results = grade_output(tc.checks, output)
         passed_checks += sum(r.passed for r in results)
         total_checks += len(results)
@@ -160,7 +166,7 @@ async def run_attempt(
         )
     checks_score = round(100 * passed_checks / total_checks) if total_checks else 0
 
-    rubric_scores = await _judge(challenge, outputs) if challenge.rubric else []
+    rubric_scores = await _judge(challenge, outputs) if submit and challenge.rubric else []
     judge_score: Optional[int] = None
     if rubric_scores:
         avg = sum(s.score for s in rubric_scores) / len(rubric_scores)
@@ -169,11 +175,12 @@ async def run_attempt(
     else:
         score = checks_score
 
-    passed = score >= challenge.pass_score
+    passed = submit and score >= challenge.pass_score
     techniques = detect_techniques(request.prompt)
 
     result = AttemptResponse(
         challenge_id=challenge.id,
+        mode=request.mode,
         score=score,
         passed=passed,
         stars=_stars(score, passed),
@@ -185,7 +192,7 @@ async def run_attempt(
         latency_ms=round((time.perf_counter() - started) * 1000, 1),
     )
 
-    if background_tasks is not None:
+    if submit and background_tasks is not None:
         background_tasks.add_task(
             progress_service.log_attempt,
             challenge_id=challenge.id,

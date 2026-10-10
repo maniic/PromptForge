@@ -1,5 +1,6 @@
 import { ApiError } from '@/lib/api';
 import type {
+  AttemptMode,
   AttemptResponse,
   ChallengeDetail,
   ChallengeStats,
@@ -49,11 +50,12 @@ export function submitAttempt(
   id: string,
   prompt: string,
   hintsUsed: number,
+  mode: AttemptMode = 'submit',
   signal?: AbortSignal
 ): Promise<AttemptResponse> {
   return request<AttemptResponse>(`/api/challenges/${encodeURIComponent(id)}/attempt`, {
     method: 'POST',
-    body: JSON.stringify({ prompt, hints_used: hintsUsed }),
+    body: JSON.stringify({ prompt, hints_used: hintsUsed, mode }),
     signal,
   });
 }

@@ -152,6 +152,9 @@ class ChallengeStats(BaseModel):
 class AttemptRequest(BaseModel):
     prompt: str = Field(..., min_length=10, max_length=4000)
     hints_used: int = Field(default=0, ge=0, le=3)
+    # "run": visible tests only, no judge, not logged — a quick feedback loop.
+    # "submit": every test (hidden included), judged, scored, and logged.
+    mode: Literal["run", "submit"] = "submit"
 
 
 class CheckResult(BaseModel):
@@ -184,6 +187,7 @@ class TechniqueReport(BaseModel):
 
 class AttemptResponse(BaseModel):
     challenge_id: str
+    mode: Literal["run", "submit"] = "submit"
     score: int = Field(ge=0, le=100)
     passed: bool
     stars: int = Field(ge=0, le=3)

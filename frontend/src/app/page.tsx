@@ -1,5 +1,5 @@
-import AcademyHome from '@/components/academy/AcademyHome';
+import HomePage from '@/components/academy/HomePage';
 
 export default function Home() {
-  return <AcademyHome />;
+  return <HomePage />;
 }

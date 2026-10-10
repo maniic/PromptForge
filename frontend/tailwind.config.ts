@@ -19,9 +19,21 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-plex-sans)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-plex-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PromptForge Academy design tokens (Carbon-inspired, see globals.css)
+        canvas: "var(--pf-canvas)",
+        panel: "var(--pf-panel)",
+        raised: "var(--pf-raised)",
+        line: { DEFAULT: "var(--pf-line)", strong: "var(--pf-line-strong)" },
+        fg: { DEFAULT: "var(--pf-fg)", muted: "var(--pf-fg-muted)", subtle: "var(--pf-fg-subtle)" },
+        brand: { DEFAULT: "var(--pf-brand)", strong: "var(--pf-brand-strong)", soft: "var(--pf-brand-soft)" },
+        ok: { DEFAULT: "var(--pf-ok)", soft: "var(--pf-ok-soft)" },
+        warn: { DEFAULT: "var(--pf-warn)", soft: "var(--pf-warn-soft)" },
+        bad: { DEFAULT: "var(--pf-bad)", soft: "var(--pf-bad-soft)" },
+        syn: { var: "var(--pf-syn-var)", tag: "var(--pf-syn-tag)", label: "var(--pf-syn-label)" },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

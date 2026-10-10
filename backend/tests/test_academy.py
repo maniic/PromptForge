@@ -90,6 +90,17 @@ def test_challenge_is_well_formed(challenge):
 
 
 @pytest.mark.parametrize("challenge", ALL_CHALLENGES, ids=lambda c: c.id)
+def test_hidden_check_labels_do_not_reveal_answers(challenge):
+    """Hidden check labels are public; they must not contain the expected answers."""
+    for tc in (t for t in challenge.test_cases if t.hidden):
+        for check in (c for c in tc.checks if c.type in ("equals", "json_field", "contains")):
+            values = check.value if isinstance(check.value, list) else [check.value]
+            for v in values:
+                if isinstance(v, str) and len(v) > 2:
+                    assert v.lower() not in check.label.lower(), f"{challenge.id}/{tc.id}: '{check.label}'"
+
+
+@pytest.mark.parametrize("challenge", ALL_CHALLENGES, ids=lambda c: c.id)
 def test_naive_output_does_not_pass(challenge):
     """A chatty, unstructured answer must fail — otherwise the challenge teaches nothing."""
     naive = "Sure! Here is my answer to your request! I hope this helps you a lot with whatever you need today."
@@ -412,3 +423,39 @@ async def test_chat_stays_enabled_when_fallback_also_fails(mock_granite_model, m
     with pytest.raises(GraniteError):
         await gs.chat("Say hi", call_name="t")
     assert gs._chat_supported is True
+
+
+# ---------------------------------------------------------------------------
+# Run vs submit
+# ---------------------------------------------------------------------------
+
+
+def test_run_mode_executes_visible_tests_only_and_is_not_logged(client):
+    challenge = curriculum_service.get_challenge("constraints")
+    mock = AsyncMock(side_effect=_golden_chat(challenge, "never called"))
+    with patch("backend.services.learn_service.chat", mock), patch(
+        "backend.services.progress_service.log_attempt", AsyncMock()
+    ) as log:
+        data = client.post(
+            "/api/challenges/constraints/attempt",
+            json={"prompt": challenge.reference_prompt, "mode": "run"},
+        ).json()
+    visible = [tc for tc in challenge.test_cases if not tc.hidden]
+    assert data["mode"] == "run"
+    assert len(data["test_results"]) == len(visible)
+    assert all(not r["hidden"] for r in data["test_results"])
+    assert mock.call_count == len(visible)  # no judge call
+    assert data["judge_score"] is None
+    assert data["passed"] is False and data["stars"] == 0  # runs never count as a pass
+    log.assert_not_called()
+
+
+def test_submit_is_default_and_logged(client):
+    challenge = curriculum_service.get_challenge("few-shot")
+    with patch("backend.services.learn_service.chat", side_effect=_golden_chat(challenge)), patch(
+        "backend.services.progress_service.log_attempt", AsyncMock()
+    ) as log:
+        data = client.post("/api/challenges/few-shot/attempt", json={"prompt": challenge.reference_prompt}).json()
+    assert data["mode"] == "submit"
+    assert len(data["test_results"]) == len(challenge.test_cases)
+    log.assert_called_once()

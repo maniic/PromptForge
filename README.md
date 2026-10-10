@@ -52,6 +52,13 @@ Learner prompts run through Granite's **chat endpoint** (its native instruction 
 
 The app follows its own lessons: the judge and coach prompts wrap learner content in delimiters and tell the model to ignore any instructions inside.
 
+## The interface
+
+LeetCode-style, in an IBM Carbon-inspired theme (IBM Plex, IBM blue):
+
+- **`/problems`**: a filterable problem table (topic, difficulty, status) with a progress sidebar
+- **`/challenge/[id]`**: a resizable split-pane workspace. The left side has Description / Learn / Coach / Solution tabs. The right side has a prompt editor (line numbers, `{{variable}}` and `<tag>` highlighting, live technique chips) above a test console (test cases, then results per case). **Run** (`Ctrl/⌘ + '`) checks the visible tests. **Submit** (`Ctrl/⌘ + Enter`) grades against everything
+
 ## The Lab
 
 The original PromptForge lives on at `/lab` as free practice. Forge turns a rough idea into a structured prompt and runs both versions side by side. X-Ray diagnoses an existing prompt. The community library is at `/library`.
@@ -62,7 +69,7 @@ The original PromptForge lives on at `/lab` as free practice. Forge turns a roug
 |----------|---------|
 | `GET /api/tracks` | Curriculum with challenge summaries |
 | `GET /api/challenges/{id}` | Brief, lesson, public test cases (hidden inputs and ids masked) |
-| `POST /api/challenges/{id}/attempt` | Run and grade a prompt on Granite |
+| `POST /api/challenges/{id}/attempt` | `mode: "run"` = visible tests only (quick, unscored); `"submit"` = all tests + judge, scored and logged |
 | `POST /api/coach` | Socratic hint, level 1-3 |
 | `POST /api/techniques` | Static technique detection (no AI call), powers the live editor chips |
 | `GET /api/challenges/{id}/solution` | Reference prompt |

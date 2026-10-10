@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { DotGridBackground } from "@/components/layout/DotGridBackground";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
@@ -10,10 +9,22 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+});
+
 export const metadata: Metadata = {
   title: "PromptForge Academy",
   description:
-    "Learn prompt engineering by doing: write prompts, run them on IBM Granite against real test cases, and get coached until they hold up.",
+    "Learn prompt engineering by solving problems: write prompts, run them on IBM Granite against real test cases, and get coached until they hold up.",
 };
 
 export default function RootLayout({
@@ -24,24 +35,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} font-sans antialiased bg-[#0a0a0a] text-foreground`}
+        className={`${inter.variable} ${plexSans.variable} ${plexMono.variable} font-sans antialiased bg-canvas text-fg`}
       >
         <ThemeProvider>
-          <DotGridBackground />
-          <div className="relative z-10">
-            {children}
-            {/* IBM watsonx.ai badge — always visible */}
-            <div className="fixed bottom-3 right-3 z-50 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0a0a0a]/80 backdrop-blur-sm border border-[#1a1a1a] text-[10px] text-[#444]">
-              <span className="font-semibold text-[#555]">IBM</span>
-              <span>watsonx.ai</span>
-            </div>
-          </div>
-          <Toaster
-            position="top-right"
-            richColors
-            duration={5000}
-            visibleToasts={3}
-          />
+          {children}
+          <Toaster position="bottom-right" richColors duration={5000} visibleToasts={3} />
         </ThemeProvider>
       </body>
     </html>

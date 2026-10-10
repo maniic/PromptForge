@@ -51,8 +51,8 @@
       "checks": [
         {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
         {"type": "json_keys", "value": ["name", "company", "meeting_date", "topic"], "label": "Has keys name, company, meeting_date, topic"},
-        {"type": "json_field", "path": "name", "value": "Jordan Lee", "match": "contains", "label": "name is Jordan Lee"},
-        {"type": "json_field", "path": "company", "value": "Pixelwise", "match": "contains", "label": "company is Pixelwise Studios"},
+        {"type": "json_field", "path": "name", "value": "Jordan Lee", "match": "contains", "label": "name is correct"},
+        {"type": "json_field", "path": "company", "value": "Pixelwise", "match": "contains", "label": "company is correct"},
         {"type": "json_field", "path": "meeting_date", "value": "2026-05-20", "label": "meeting_date is ISO formatted"}
       ],
       "golden_output": "{\"name\": \"Jordan Lee\", \"company\": \"Pixelwise Studios\", \"meeting_date\": \"2026-05-20\", \"topic\": \"Integration partnership\"}"

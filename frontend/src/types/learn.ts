@@ -71,8 +71,11 @@ export interface TechniqueReport {
   word_count: number;
 }
 
+export type AttemptMode = 'run' | 'submit';
+
 export interface AttemptResponse {
   challenge_id: string;
+  mode: AttemptMode;
   score: number;
   passed: boolean;
   stars: number;

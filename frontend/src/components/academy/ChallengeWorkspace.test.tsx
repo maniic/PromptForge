@@ -23,6 +23,8 @@ vi.mock('@/lib/learn-api', async (importOriginal) => {
 
 import ChallengeWorkspace from '@/components/academy/ChallengeWorkspace';
 
+const PROGRESS_KEY = 'promptforge.academy.progress.v1';
+
 const CHALLENGE: ChallengeDetail = {
   id: 'grounding',
   track: 'trust',
@@ -41,8 +43,9 @@ const CHALLENGE: ChallengeDetail = {
   pass_score: 80,
 };
 
-const ATTEMPT: AttemptResponse = {
+const SUBMIT: AttemptResponse = {
   challenge_id: 'grounding',
+  mode: 'submit',
   score: 50,
   passed: false,
   stars: 0,
@@ -62,18 +65,19 @@ describe('ChallengeWorkspace', () => {
     window.localStorage.clear();
     Object.values(api).forEach((fn) => fn.mockReset());
     api.getChallenge.mockResolvedValue(CHALLENGE);
-    api.getTracks.mockResolvedValue([]);
+    api.getTracks.mockResolvedValue([
+      { id: 'trust', title: 'Trustworthy AI', description: '', challenges: [{ id: 'grounding', title: 'Stay grounded', technique: 'x', difficulty: 'intermediate' }] },
+    ]);
     api.getChallengeStats.mockResolvedValue({ attempts: 0, pass_rate: 0, avg_score: 0 });
     api.detectTechniques.mockResolvedValue({ detected: ['variables'], estimated_tokens: 6, word_count: 2 });
   });
 
-  it('loads the starter prompt and hides hidden test inputs', async () => {
-    const user = userEvent.setup();
+  it('loads the problem, numbers it, and shows only visible test inputs', async () => {
     render(<ChallengeWorkspace challengeId="grounding" />);
-    expect(await screen.findByText('Stay grounded')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '1. Stay grounded' })).toBeInTheDocument();
     expect(screen.getByLabelText('Prompt editor')).toHaveValue('{{context}}\n\n{{question}}');
-    await user.click(screen.getByRole('button', { name: /hidden-1/i }));
-    expect(screen.getByText(/input is kept secret/i)).toBeInTheDocument();
+    expect(screen.getByText('Policy text')).toBeInTheDocument();
+    expect(screen.getByText(/\+1 hidden on submit/i)).toBeInTheDocument();
   });
 
   it('blocks running when a variable is missing', async () => {
@@ -83,12 +87,23 @@ describe('ChallengeWorkspace', () => {
     await user.clear(editor);
     await user.type(editor, 'Answer the question please');
     expect(screen.getByText(/never see that input/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /run 2 tests/i })).toBeDisabled();
+    expect(screen.getAllByRole('button', { name: /^submit$/i })[0]).toBeDisabled();
   });
 
-  it('runs the attempt, shows the score, and sends failures to the coach', async () => {
+  it('run does not count as a submission', async () => {
     const user = userEvent.setup();
-    api.submitAttempt.mockResolvedValue(ATTEMPT);
+    api.submitAttempt.mockResolvedValue({ ...SUBMIT, mode: 'run', test_results: [SUBMIT.test_results[0]] });
+    render(<ChallengeWorkspace challengeId="grounding" />);
+    await screen.findByLabelText('Prompt editor');
+    await user.click(screen.getAllByRole('button', { name: /^run$/i })[0]);
+    expect(await screen.findByText('Some tests fail')).toBeInTheDocument();
+    expect(api.submitAttempt.mock.calls[0][3]).toBe('run');
+    expect(window.localStorage.getItem(PROGRESS_KEY) ?? '').not.toContain('"attempts":1');
+  });
+
+  it('submit shows the verdict, records progress, and feeds failures to the coach', async () => {
+    const user = userEvent.setup();
+    api.submitAttempt.mockResolvedValue(SUBMIT);
     api.askCoach.mockResolvedValue({
       hint_level: 1,
       diagnosis: 'The model guessed.',
@@ -98,13 +113,15 @@ describe('ChallengeWorkspace', () => {
     });
 
     render(<ChallengeWorkspace challengeId="grounding" />);
-    await user.click(await screen.findByRole('button', { name: /run 2 tests/i }));
+    await screen.findByLabelText('Prompt editor');
+    await user.click(screen.getAllByRole('button', { name: /^submit$/i })[0]);
 
-    expect(await screen.findByText(/80 needed to pass/i)).toBeInTheDocument();
+    expect(await screen.findByText('Not accepted')).toBeInTheDocument();
     expect(screen.getByText('Yes, pets are welcome!')).toBeInTheDocument();
-    expect(screen.getByText('1/2 tests passing')).toBeInTheDocument();
+    await waitFor(() => expect(JSON.parse(window.localStorage.getItem(PROGRESS_KEY) ?? '{}').grounding.attempts).toBe(1));
 
-    await user.click(screen.getByRole('button', { name: /hint 1\/3/i }));
+    await user.click(screen.getByRole('button', { name: /^coach$/i }));
+    await user.click(screen.getByRole('button', { name: /get hint 1: nudge/i }));
     expect(await screen.findByText('The model guessed.')).toBeInTheDocument();
     expect(api.askCoach).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -114,11 +131,14 @@ describe('ChallengeWorkspace', () => {
         score: 50,
       })
     );
-    await waitFor(() => expect(JSON.parse(window.localStorage.getItem('promptforge.academy.progress.v1') ?? '{}').grounding.attempts).toBe(1));
   });
 
   it('keeps the solution locked until the learner has earned it', async () => {
+    const user = userEvent.setup();
     render(<ChallengeWorkspace challengeId="grounding" />);
-    expect(await screen.findByRole('button', { name: /reveal solution/i })).toBeDisabled();
+    await screen.findByLabelText('Prompt editor');
+    await user.click(screen.getByRole('button', { name: /solution/i }));
+    expect(screen.getByRole('button', { name: /reveal solution/i })).toBeDisabled();
+    expect(screen.getByText(/0\/3/)).toBeInTheDocument();
   });
 });
