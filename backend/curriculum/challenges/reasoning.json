@@ -1,0 +1,53 @@
+{
+  "id": "reasoning",
+  "track": "steering",
+  "title": "Think before you answer",
+  "technique": "Step-by-step reasoning",
+  "difficulty": "intermediate",
+  "brief": "An operations dashboard needs reliable answers to multi-step word problems. The model should reason step by step, then put the final numeric answer on its own last line, in exactly this form: ANSWER: <number>",
+  "lesson": {
+    "summary": "LLMs generate one token at a time, so a model that jumps straight to an answer has no room to work. Asking it to reason step by step first, then give a strictly formatted final answer, improves accuracy and keeps the result machine-readable.",
+    "why_it_matters": "Separating the reasoning from the final answer gives you auditability (humans can check the steps) and reliability (code can parse the answer).",
+    "weak_example": "{{problem}}",
+    "strong_example": "Solve step by step, one calculation per line. End with a final line: ANSWER: <number>\n\nProblem: {{problem}}"
+  },
+  "variables": ["problem"],
+  "starter_prompt": "{{problem}}",
+  "test_cases": [
+    {
+      "id": "warehouse",
+      "vars": {"problem": "A warehouse has 4 shelves with 18 boxes each. A shipment removes 25 boxes, then a delivery adds 13 boxes. How many boxes are in the warehouse now?"},
+      "checks": [
+        {"type": "min_words", "value": 15, "label": "Shows its reasoning"},
+        {"type": "regex", "value": "(?:^|\\n)\\s*ANSWER:\\s*\\$?60(?:\\.0+)?\\s*\\Z", "label": "Last line is exactly ANSWER: 60"}
+      ],
+      "golden_output": "4 shelves × 18 boxes = 72 boxes.\nAfter removing 25 boxes: 72 − 25 = 47.\nAfter adding 13 boxes: 47 + 13 = 60.\nANSWER: 60"
+    },
+    {
+      "id": "bugs",
+      "vars": {"problem": "A team of 3 engineers each fixes 7 bugs per day. How many bugs does the team fix in a 5-day week if they take one day off for training?"},
+      "checks": [
+        {"type": "min_words", "value": 15, "label": "Shows its reasoning"},
+        {"type": "regex", "value": "(?:^|\\n)\\s*ANSWER:\\s*\\$?84(?:\\.0+)?\\s*\\Z", "label": "Last line is exactly ANSWER: 84"}
+      ],
+      "golden_output": "Working days: 5 − 1 = 4.\nBugs per day for the team: 3 × 7 = 21.\nTotal bugs: 21 × 4 = 84.\nANSWER: 84"
+    },
+    {
+      "id": "cloud-cost",
+      "hidden": true,
+      "vars": {"problem": "A cloud server costs $0.50 per hour. It runs 10 hours a day on weekdays and 4 hours a day on weekends. What is the cost, in dollars, for one full week?"},
+      "checks": [
+        {"type": "min_words", "value": 15, "label": "Shows its reasoning"},
+        {"type": "regex", "value": "(?:^|\\n)\\s*ANSWER:\\s*\\$?29(?:\\.0+)?\\s*\\Z", "label": "Last line is the correct ANSWER"}
+      ],
+      "golden_output": "Weekday hours: 5 × 10 = 50.\nWeekend hours: 2 × 4 = 8.\nTotal hours: 50 + 8 = 58.\nCost: 58 × $0.50 = $29.\nANSWER: 29"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "Where in your prompt do you tell the model how to work through the problem, and where to put the final answer?",
+    "This is chain-of-thought prompting. Asking the model to reason step by step before answering improves accuracy on multi-step problems. Pair it with a strict, parseable final-answer format.",
+    "Try: 'Solve step by step, showing each calculation on its own line. Then finish with a final line in exactly the form ANSWER: <number> (digits only, no units). Write nothing after it.'"
+  ],
+  "reference_prompt": "You are a careful operations analyst.\n\nSolve the problem below. Think step by step:\n1. List the quantities given.\n2. Do each calculation on its own line.\n3. Double-check the arithmetic.\n\nThen end with a final line in exactly this format:\nANSWER: <number>\n\nUse digits only on the final line (no units, no words). Nothing may come after the ANSWER line.\n\nProblem: {{problem}}"
+}

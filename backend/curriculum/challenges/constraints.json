@@ -1,0 +1,62 @@
+{
+  "id": "constraints",
+  "track": "steering",
+  "title": "Rules of the road",
+  "technique": "Explicit constraints",
+  "difficulty": "intermediate",
+  "brief": "Marketing needs one tagline per product, aimed at a given audience. Brand rules: at most 8 words, must include the product name, no exclamation marks, and none of the banned buzzwords (revolutionary, game-changer, cutting-edge, next-level).",
+  "lesson": {
+    "summary": "A model can only follow rules it has been told. Good constraints are explicit and checkable, and they include the negatives: what to avoid, what is banned, and what the output must never contain.",
+    "why_it_matters": "Brand guidelines, legal disclaimers, and compliance rules are all constraints. If they aren't in the prompt, they won't be in the output.",
+    "weak_example": "Write a catchy tagline for {{product}}.",
+    "strong_example": "Write one tagline for {{product}} aimed at {{audience}}. Max 8 words. Must include \"{{product}}\". No exclamation marks. Never use: revolutionary, game-changer. Output only the tagline."
+  },
+  "variables": ["product", "audience"],
+  "starter_prompt": "Write a catchy tagline for {{product}}. The audience is {{audience}}.",
+  "test_cases": [
+    {
+      "id": "solarsip",
+      "vars": {"product": "SolarSip", "audience": "hikers who hate carrying heavy gear"},
+      "checks": [
+        {"type": "max_words", "value": 8, "label": "At most 8 words"},
+        {"type": "contains", "value": "SolarSip", "label": "Includes the product name"},
+        {"type": "not_contains", "value": "!", "label": "No exclamation marks"},
+        {"type": "not_contains", "value": ["revolutionary", "game-changer", "cutting-edge", "next-level"], "label": "No banned buzzwords"}
+      ],
+      "golden_output": "SolarSip: clean water, lighter pack, longer trails."
+    },
+    {
+      "id": "napnest",
+      "vars": {"product": "NapNest", "audience": "exhausted new parents"},
+      "checks": [
+        {"type": "max_words", "value": 8, "label": "At most 8 words"},
+        {"type": "contains", "value": "NapNest", "label": "Includes the product name"},
+        {"type": "not_contains", "value": "!", "label": "No exclamation marks"},
+        {"type": "not_contains", "value": ["revolutionary", "game-changer", "cutting-edge", "next-level"], "label": "No banned buzzwords"}
+      ],
+      "golden_output": "NapNest: better baby sleep, calmer nights for you."
+    },
+    {
+      "id": "ledgerlite",
+      "hidden": true,
+      "vars": {"product": "LedgerLite", "audience": "freelancers who dread tax season"},
+      "checks": [
+        {"type": "max_words", "value": 8, "label": "At most 8 words"},
+        {"type": "contains", "value": "LedgerLite", "label": "Includes the product name"},
+        {"type": "not_contains", "value": "!", "label": "No exclamation marks"},
+        {"type": "not_contains", "value": ["revolutionary", "game-changer", "cutting-edge", "next-level"], "label": "No banned buzzwords"}
+      ],
+      "golden_output": "LedgerLite turns tax season into tax minutes."
+    }
+  ],
+  "rubric": [
+    "The tagline speaks directly to the stated audience",
+    "The tagline is catchy and memorable"
+  ],
+  "hints": [
+    "Count the rules in the brief. How many of them does your prompt actually state?",
+    "This is about explicit constraints. The model doesn't know your brand rules, so list each one plainly, including what NOT to do (banned words, punctuation, extra commentary).",
+    "Add a 'Rules:' list: at most 8 words; must include {{product}}; no exclamation marks; never use revolutionary, game-changer, cutting-edge, next-level; output only the tagline."
+  ],
+  "reference_prompt": "You are a senior copywriter known for short, punchy taglines.\n\nWrite one tagline for {{product}}, aimed at {{audience}}.\n\nRules:\n- At most 8 words.\n- Must include the exact name \"{{product}}\".\n- No exclamation marks.\n- Never use these words: revolutionary, game-changer, cutting-edge, next-level.\n- Output only the tagline: no quotes, no explanation, no alternatives."
+}

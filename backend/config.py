@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     environment: str = "development"
     max_tokens_craft: int = 100
     max_tokens_execute: int = 800
+    max_tokens_attempt: int = 500
+    max_tokens_judge: int = 300
+    max_tokens_coach: int = 300
     log_level: str = "INFO"
 
     @model_validator(mode="after")

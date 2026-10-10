@@ -1,0 +1,65 @@
+{
+  "id": "clear-instructions",
+  "track": "foundations",
+  "title": "Say exactly what you want",
+  "technique": "Specificity",
+  "difficulty": "beginner",
+  "brief": "The product team wants every customer review condensed into exactly 3 bullet points (what the customer liked, what they disliked, and their overall verdict), each 15 words or fewer.",
+  "lesson": {
+    "summary": "Models fill every gap you leave with their own defaults. 'Summarize this' says nothing about length, shape, or focus, so you get a different paragraph every time. Specific prompts state the count, the length limit, and what each part must cover.",
+    "why_it_matters": "Downstream code and UIs expect a predictable shape. A summary widget built for 3 short bullets breaks when the model returns a 200-word paragraph.",
+    "weak_example": "Summarize this review: {{review}}",
+    "strong_example": "Summarize the review in exactly 3 bullets (liked / disliked / verdict), each 15 words or fewer. Output only the bullets.\n\nReview: {{review}}"
+  },
+  "variables": ["review"],
+  "starter_prompt": "Summarize this review: {{review}}",
+  "test_cases": [
+    {
+      "id": "coffee-maker",
+      "vars": {
+        "review": "I bought the AeroPress Go for camping. It's incredibly light and the coffee tastes richer than my drip machine at home. Cleanup takes seconds. My only gripe is the tiny capacity: I can only make one cup at a time, which is annoying when my partner wants coffee too. Still, for the price it's a no-brainer and it's coming on every trip."
+      },
+      "checks": [
+        {"type": "bullet_count", "value": 3, "label": "Exactly 3 bullet points"},
+        {"type": "max_words_per_line", "value": 15, "label": "Each bullet is 15 words or fewer"},
+        {"type": "regex", "value": "capacity|one cup|single cup|small", "label": "Mentions the main complaint (capacity)"}
+      ],
+      "golden_output": "- Liked: lightweight, rich coffee, and seconds-fast cleanup.\n- Disliked: tiny capacity, only one cup at a time.\n- Verdict: great value; coming on every camping trip."
+    },
+    {
+      "id": "desk-lamp",
+      "vars": {
+        "review": "The Lumen desk lamp looks gorgeous and the warm light setting is easy on my eyes during late-night study sessions. However, the touch controls are way too sensitive: brushing it with my sleeve turns it off. Customer support replaced it once but the new one has the same issue. Beautiful design, frustrating to actually use."
+      },
+      "checks": [
+        {"type": "bullet_count", "value": 3, "label": "Exactly 3 bullet points"},
+        {"type": "max_words_per_line", "value": 15, "label": "Each bullet is 15 words or fewer"},
+        {"type": "regex", "value": "touch|control|sensitive", "label": "Mentions the main complaint (touch controls)"}
+      ],
+      "golden_output": "- Liked: gorgeous design and eye-friendly warm light.\n- Disliked: overly sensitive touch controls; replacement had the same flaw.\n- Verdict: beautiful but frustrating to use day to day."
+    },
+    {
+      "id": "backpack",
+      "hidden": true,
+      "vars": {
+        "review": "Ordered the TrailMate backpack for a 3-day hike. The hip belt distributes weight really well and I had zero shoulder pain. Pockets are well placed. Sadly a zipper broke on day two and the rain cover is sold separately, which feels cheap at $180. Comfortable, but I expected better build quality."
+      },
+      "checks": [
+        {"type": "bullet_count", "value": 3, "label": "Exactly 3 bullet points"},
+        {"type": "max_words_per_line", "value": 15, "label": "Each bullet is 15 words or fewer"},
+        {"type": "regex", "value": "zipper|build|quality|rain cover", "label": "Mentions the main complaint (build quality)"}
+      ],
+      "golden_output": "- Liked: excellent hip belt weight distribution and smart pockets.\n- Disliked: zipper broke on day two; rain cover costs extra.\n- Verdict: comfortable, but build quality disappoints at $180."
+    }
+  ],
+  "rubric": [
+    "The bullets cover what the customer liked, what they disliked, and their overall verdict",
+    "Every claim is faithful to the review, with no invented details"
+  ],
+  "hints": [
+    "Read your prompt as if you were the model: how many bullets does it ask for? How long should each one be?",
+    "This is about specificity. A vague verb like 'summarize' leaves length and shape up to the model. State the exact count, the length limit, and what each bullet should cover.",
+    "Try a structure like: 'Summarize the review below in exactly 3 bullet points (liked / disliked / verdict). Each bullet must be 15 words or fewer. Output only the bullets.'"
+  ],
+  "reference_prompt": "You are a product analyst condensing customer feedback for a busy product team.\n\nSummarize the customer review between the triple quotes in EXACTLY 3 bullet points:\n- Liked: what the customer praised\n- Disliked: their main complaint\n- Verdict: their overall conclusion\n\nRules:\n- Each bullet must be 15 words or fewer.\n- Start each bullet with \"- \".\n- Only use facts stated in the review.\n- Output only the 3 bullets, nothing else.\n\nReview:\n\"\"\"\n{{review}}\n\"\"\""
+}

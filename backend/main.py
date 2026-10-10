@@ -17,7 +17,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from backend.routers import anatomy, forge, health, library
+from backend.routers import anatomy, forge, health, learn, library
 from backend.services import granite_service
 from backend.services.granite_service import GraniteError
 
@@ -45,9 +45,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PromptForge API",
-    description="Transforms rough ideas into expert prompts via IBM Granite.",
-    version="0.1.0",
+    title="PromptForge Academy API",
+    description="Learn prompt engineering by doing: prompts graded like code, coached by IBM Granite.",
+    version="0.2.0",
     lifespan=lifespan,
 )
 
@@ -87,3 +87,4 @@ app.include_router(health.router)
 app.include_router(forge.router)
 app.include_router(library.router)
 app.include_router(anatomy.router)
+app.include_router(learn.router)

@@ -1,32 +1,73 @@
-# PromptForge
+# PromptForge Academy
 
-**IBM Granite turns any rough idea into a perfectly engineered one-shot prompt — then proves it with a live before/after comparison.**
+**A flight simulator for prompt engineering. You write the prompt, IBM Granite runs it against real test cases, and a Socratic Granite coach helps you fix it. It never writes the answer for you.**
 
-## What it does
+## Why
 
-PromptForge takes a vague idea ("make me a habit tracker app"), uses IBM Granite to craft a structured expert prompt, then executes both the raw input and the crafted prompt side-by-side. You see the difference instantly — same model, dramatically different output.
+Most "prompt tools" write the prompt for you. That makes people dependent, not skilled. PromptForge started out that way too (the original forge still lives in the Lab). The Academy flips it: the learner does the work, and the platform gives the kind of feedback a senior engineer would.
 
-## The meta-prompting architecture
+The core idea is that **a prompt is a program, so test it like one.** Every challenge is a small test suite:
 
-The forge pipeline makes **4 IBM Granite calls** per request:
+| Piece | What it does |
+|-------|--------------|
+| **Template variables** | Learners write a reusable prompt with `{{placeholders}}`, the way production prompts are built |
+| **Visible + hidden test cases** | The prompt runs against several inputs. Hidden ones stop learners from overfitting to the examples |
+| **Deterministic checks** | Valid JSON, exact labels, word limits, bullet counts, Flesch-Kincaid reading level, leak and injection detection. These are reproducible, with no AI opinion involved |
+| **Granite-as-judge** | Scores only the qualitative rubric that code can't check (faithfulness, tone) |
+| **Socratic coach** | A three-level hint ladder: nudge → concept → pattern. It never hands over a full prompt |
+| **Expert reference** | Unlocks after a pass or 3 attempts, so learners compare structure after they've struggled with it |
 
-1. **Detect category** — classify the input as vibe_coding, brainstorming, qa, or one_shot
-2. **Craft expert prompt** — generate a structured 200-400 word prompt with role, context, constraints, output format, quality bar, and task
-3. **Execute crafted** + **Execute raw** — run both prompts simultaneously via `asyncio.gather()`, proving the crafted version produces dramatically better output
+## Curriculum
 
-IBM Granite engineers prompts for IBM Granite.
+| Track | Challenges |
+|-------|-----------|
+| **Foundations** | Specificity · Audience & role · Structured output (JSON) |
+| **Steering the Model** | Few-shot examples · Explicit constraints · Step-by-step reasoning |
+| **Trustworthy AI** | Grounding & fallbacks (RAG "NOT IN CONTEXT") · Delimiters & prompt-injection defense |
+| **Capstone** | Meeting notes → action-item JSON (every technique combined) |
 
-## The Prompt Anatomy Engine
+Challenges are **data, not code**: each one is a JSON file in `backend/curriculum/challenges/` holding a brief, a lesson, test cases, a rubric, three authored hints, and a reference solution. Every test case also carries a *golden output*, and the test suite checks that it passes its own checks. That way no challenge can ship impossible to pass, and a naive "Sure! Here's..." answer is checked to fail every challenge.
 
-After forging, click "Anatomy" to see the crafted prompt parsed into 6 color-coded structural segments: Role, Context, Constraints, Output Format, Quality Bar, and Task. Toggle any segment off to see how output quality degrades in real-time — teaching users which prompt elements matter most.
+## How an attempt works
 
-## The Prompt X-Ray
+```
+Learner prompt (with {{vars}})
+        │
+        ├─ validate: every challenge variable is used (instant 422 + explanation otherwise)
+        │
+        ├─ render once per test case ──► asyncio.gather(Granite × N)    ← one round trip
+        │
+        ├─ deterministic checks per output (grading_service, pure Python)
+        │
+        ├─ rubric? ──► 1 Granite-as-judge call (outputs delimited, injection-hardened)
+        │
+        └─ score = 75% checks + 25% judge → pass at 80 → ★ / ★★ (90+) / ★★★ (97+)
+              └─ fire-and-forget attempt log to Supabase (learning analytics)
 
-Paste any existing prompt into X-Ray mode. Granite diagnoses what's missing, generates an upgraded version, and executes both side-by-side. See exactly how adding structure transforms output quality.
+Coach (on demand): 1 Granite call → {diagnosis, hint, question}
+                   falls back to authored hints if Granite fails or returns bad JSON
+```
 
-## Community Library
+Learner prompts run through Granite's **chat endpoint** (its native instruction format), so they behave the way they would in a real watsonx.ai app. If a deployment doesn't expose chat for the model, `granite_service.chat` falls back to `generate_text` with Granite's chat template applied.
 
-Save your best forged prompts to the community library. Browse by category, upvote the best ones, and reuse any prompt with one click — it pre-fills and auto-forges when you click "Use this prompt."
+The app follows its own lessons: the judge and coach prompts wrap learner content in delimiters and tell the model to ignore any instructions inside.
+
+## The Lab
+
+The original PromptForge lives on at `/lab` as free practice. Forge turns a rough idea into a structured prompt and runs both versions side by side. X-Ray diagnoses an existing prompt. The community library is at `/library`.
+
+## API
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/tracks` | Curriculum with challenge summaries |
+| `GET /api/challenges/{id}` | Brief, lesson, public test cases (hidden inputs and ids masked) |
+| `POST /api/challenges/{id}/attempt` | Run and grade a prompt on Granite |
+| `POST /api/coach` | Socratic hint, level 1-3 |
+| `POST /api/techniques` | Static technique detection (no AI call), powers the live editor chips |
+| `GET /api/challenges/{id}/solution` | Reference prompt |
+| `GET /api/challenges/{id}/stats` | Community pass rate and average score |
+| `POST /api/forge`, `/api/xray`, `/api/library` | Lab and library (unchanged) |
 
 ## Tech stack
 
@@ -67,10 +108,7 @@ Save your best forged prompts to the community library. Browse by category, upvo
 
 4. Create `.env` in the project root with the required environment variables (see below).
 
-5. Run the Supabase schema migration in your Supabase Dashboard > SQL Editor:
-   ```sql
-   -- See backend/db/schema.sql for the full schema
-   ```
+5. Run `backend/db/schema.sql` in the Supabase Dashboard > SQL Editor (adds the `attempts` analytics table).
 
 ## Running locally
 
@@ -101,21 +139,17 @@ Open http://localhost:3000
 | `SUPABASE_SERVICE_KEY` | Yes | Supabase service role key |
 | `NEXT_PUBLIC_API_URL` | No | Backend API URL (default: `http://localhost:8000`) |
 
-## Demo walkthrough
+## Running the tests
 
-1. **Open** http://localhost:3000
-2. **Click** the "Vibe Code" preset button — it fills in a coding task
-3. **Click** "Forge" — watch the 4-stage loading animation
-4. **See the results** — three columns appear:
-   - Left: your original input
-   - Center: the crafted expert prompt (types out character-by-character)
-   - Right: before/after comparison showing the dramatic quality difference
-5. **Click "Anatomy"** on the center card — see the prompt parsed into color-coded segments
-6. **Toggle a segment off** — watch the output degrade in real-time
-7. **Click "Save"** — save your prompt to the community library
-8. **Visit /library** — browse, filter by category, upvote, or click "Use this" to re-forge
-9. **Try X-Ray mode** — paste any bad prompt, get a diagnosis and upgraded version
+```bash
+cd backend && source venv/bin/activate && cd .. && pytest backend/tests -q   # 100 tests
+cd frontend && npx vitest run                                                # 31 tests
+```
 
-## Live demo
+## Roadmap
 
-[LIVE URL — to be filled in after deployment]
+- **Granite Guardian** as a second grader for the Trustworthy AI track (harm and jailbreak risk scores)
+- **watsonx.governance** evaluation metrics alongside the deterministic checks
+- **Model comparison**: run the same prompt on Granite 8B and a larger model to teach model selection and cost
+- **Instructor mode**: author challenges in the UI, and use attempt analytics to spot where a cohort gets stuck
+- **Accounts and cohorts** via Supabase Auth (progress is per-browser today)

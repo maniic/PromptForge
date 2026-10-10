@@ -40,7 +40,7 @@ export default function LibraryPage() {
             className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#555] hover:text-white transition-colors mb-6"
           >
             <ArrowLeft className="h-3 w-3" />
-            Back to PromptForge
+            Back to the Academy
           </Link>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight gradient-text-red mb-2">
             Community Library

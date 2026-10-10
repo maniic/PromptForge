@@ -1,0 +1,53 @@
+{
+  "id": "few-shot",
+  "track": "steering",
+  "title": "Show, don't tell",
+  "technique": "Few-shot examples",
+  "difficulty": "intermediate",
+  "brief": "The warehouse turns product descriptions into SKU codes using an unwritten house convention. Nobody can explain the rule, but here are known examples:\n\n• Blue Cotton T-Shirt, size M → TSH-BLU-COT-M\n• Black Leather Jacket, size L → JKT-BLK-LEA-L\n• Red Wool Sweater, size S → SWT-RED-WOL-S\n\nTeach the model the pattern so it outputs only the SKU.",
+  "lesson": {
+    "summary": "Some patterns are almost impossible to describe but trivial to demonstrate. Few-shot prompting puts 2–5 input → output examples directly in the prompt. The model infers both the rule and the exact output format from them.",
+    "why_it_matters": "Few-shot is how teams adapt a general model like Granite to house conventions (codes, tone, labels) without fine-tuning.",
+    "weak_example": "Create a SKU code for: {{product}}",
+    "strong_example": "Product: Blue Cotton T-Shirt, size M\nSKU: TSH-BLU-COT-M\n\nProduct: Black Leather Jacket, size L\nSKU: JKT-BLK-LEA-L\n\nProduct: {{product}}\nSKU:"
+  },
+  "variables": ["product"],
+  "starter_prompt": "Create a SKU code for this product: {{product}}",
+  "test_cases": [
+    {
+      "id": "black-tshirt",
+      "vars": {"product": "Black Cotton T-Shirt, size XL"},
+      "checks": [
+        {"type": "regex", "value": "\\A[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{1,3}\\Z", "label": "Output is only a SKU, no extra text"},
+        {"type": "equals", "value": "TSH-BLK-COT-XL", "label": "SKU is TSH-BLK-COT-XL"}
+      ],
+      "golden_output": "TSH-BLK-COT-XL"
+    },
+    {
+      "id": "red-jacket",
+      "vars": {"product": "Red Leather Jacket, size M"},
+      "checks": [
+        {"type": "regex", "value": "\\A[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{1,3}\\Z", "label": "Output is only a SKU, no extra text"},
+        {"type": "equals", "value": "JKT-RED-LEA-M", "label": "SKU is JKT-RED-LEA-M"}
+      ],
+      "golden_output": "JKT-RED-LEA-M"
+    },
+    {
+      "id": "blue-sweater",
+      "hidden": true,
+      "vars": {"product": "Blue Wool Sweater, size L"},
+      "checks": [
+        {"type": "regex", "value": "\\A[A-Z]{3}-[A-Z]{3}-[A-Z]{3}-[A-Z]{1,3}\\Z", "label": "Output is only a SKU, no extra text"},
+        {"type": "equals", "value": "SWT-BLU-WOL-L", "label": "SKU follows the house convention"}
+      ],
+      "golden_output": "SWT-BLU-WOL-L"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "Could you explain the SKU rule in words precisely enough for a stranger? If not, how else could you communicate it?",
+    "This is few-shot prompting. When a pattern is easier to show than describe, include worked input → output examples in the prompt, formatted exactly how you want the answer.",
+    "Paste the three known examples into your prompt as 'Product: ... / SKU: ...' pairs, then end with 'Product: {{product}}' and 'SKU:', and say to output only the SKU."
+  ],
+  "reference_prompt": "Convert product descriptions into warehouse SKU codes. Follow the pattern in the examples exactly. Output only the SKU, nothing else.\n\nProduct: Blue Cotton T-Shirt, size M\nSKU: TSH-BLU-COT-M\n\nProduct: Black Leather Jacket, size L\nSKU: JKT-BLK-LEA-L\n\nProduct: Red Wool Sweater, size S\nSKU: SWT-RED-WOL-S\n\nProduct: {{product}}\nSKU:"
+}

@@ -118,7 +118,7 @@ def test_post_library_saves_prompt():
         with patch("backend.services.library_service.supabase_client", return_value=mock_client):
             import httpx as _httpx
             from httpx import ASGITransport
-            response = asyncio.get_event_loop().run_until_complete(
+            response = asyncio.run(
                 _httpx.AsyncClient(
                     transport=ASGITransport(app=app),
                     base_url="http://test",
@@ -143,7 +143,7 @@ def test_post_library_validation_missing_title():
     from backend.main import app
 
     body = {k: v for k, v in _SAVE_BODY.items() if k != "title"}
-    response = asyncio.get_event_loop().run_until_complete(
+    response = asyncio.run(
         httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url="http://test",
@@ -160,7 +160,7 @@ def test_post_library_validation_missing_author():
     from backend.main import app
 
     body = {k: v for k, v in _SAVE_BODY.items() if k != "author_name"}
-    response = asyncio.get_event_loop().run_until_complete(
+    response = asyncio.run(
         httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app),
             base_url="http://test",
@@ -184,7 +184,7 @@ def test_get_library_returns_list():
     mock_client = _mock_supabase_select([_SAMPLE_ROW])
 
     with patch("backend.services.library_service.supabase_client", return_value=mock_client):
-        response = asyncio.get_event_loop().run_until_complete(
+        response = asyncio.run(
             httpx.AsyncClient(
                 transport=httpx.ASGITransport(app=app),
                 base_url="http://test",
@@ -231,7 +231,7 @@ def test_get_library_category_filter():
                     created_at=datetime.fromisoformat(_SAMPLE_ROW["created_at"]),
                 )
             ]
-            response = asyncio.get_event_loop().run_until_complete(
+            response = asyncio.run(
                 httpx.AsyncClient(
                     transport=httpx.ASGITransport(app=app),
                     base_url="http://test",
@@ -259,7 +259,7 @@ def test_get_library_by_id():
     prompt_id = _SAMPLE_ROW["id"]
 
     with patch("backend.services.library_service.supabase_client", return_value=mock_client):
-        response = asyncio.get_event_loop().run_until_complete(
+        response = asyncio.run(
             httpx.AsyncClient(
                 transport=httpx.ASGITransport(app=app), base_url="http://test"
             ).get(f"/api/library/{prompt_id}")
@@ -289,7 +289,7 @@ def test_get_library_by_id_not_found():
     unknown_id = "00000000-0000-0000-0000-000000000000"
 
     with patch("backend.services.library_service.supabase_client", return_value=mock_client):
-        response = asyncio.get_event_loop().run_until_complete(
+        response = asyncio.run(
             httpx.AsyncClient(
                 transport=httpx.ASGITransport(app=app), base_url="http://test"
             ).get(f"/api/library/{unknown_id}")

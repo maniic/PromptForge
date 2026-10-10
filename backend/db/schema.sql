@@ -36,3 +36,18 @@ CREATE TABLE IF NOT EXISTS forge_events (
     total_latency_ms  float8,
     created_at        timestamptz NOT NULL DEFAULT now()
 );
+
+-- ---------------------------------------------------------------------------
+-- attempts: anonymous Academy attempt log (learning analytics)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS attempts (
+    id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    challenge_id   text        NOT NULL,
+    score          integer     NOT NULL,
+    passed         boolean     NOT NULL,
+    hints_used     integer     NOT NULL DEFAULT 0,
+    prompt_tokens  integer,
+    created_at     timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_attempts_challenge ON attempts (challenge_id);

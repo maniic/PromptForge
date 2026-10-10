@@ -1,0 +1,59 @@
+{
+  "id": "audience",
+  "track": "foundations",
+  "title": "Know your audience",
+  "technique": "Audience & role",
+  "difficulty": "beginner",
+  "brief": "A kids' science app needs explanations a 10-year-old can read on their own: under 80 words, at a 6th-grade reading level or below, with one everyday analogy.",
+  "lesson": {
+    "summary": "'Simple' means nothing to a model until you say who it should be simple for. Naming the audience (their age, their expertise, what they care about) is one of the highest-leverage edits you can make to a prompt.",
+    "why_it_matters": "The same answer has to read differently for a customer, a support agent, and an engineer. Audience-aware prompts are how one model serves all three.",
+    "weak_example": "Explain {{concept}} simply.",
+    "strong_example": "You are a children's science writer. Explain {{concept}} to a 10-year-old in under 80 words, using short sentences and one everyday analogy."
+  },
+  "variables": ["concept"],
+  "starter_prompt": "Explain {{concept}}.",
+  "test_cases": [
+    {
+      "id": "photosynthesis",
+      "vars": {"concept": "photosynthesis"},
+      "checks": [
+        {"type": "max_words", "value": 80, "label": "Under 80 words"},
+        {"type": "max_grade_level", "value": 6, "label": "Reading grade level 6 or below"},
+        {"type": "regex", "value": "\\blike\\b|\\bimagine\\b|\\bthink of\\b|\\bjust as\\b", "label": "Uses an everyday analogy"}
+      ],
+      "golden_output": "Plants make their own food using sunlight. Think of a leaf like a tiny kitchen. The sun is the stove. Water comes up from the roots. Air comes in through little holes in the leaf. The plant mixes them to make sugar, its food. Then it lets out fresh air for us to breathe. So every green leaf is a little food maker that runs on sunshine!"
+    },
+    {
+      "id": "internet",
+      "vars": {"concept": "how the internet works"},
+      "checks": [
+        {"type": "max_words", "value": 80, "label": "Under 80 words"},
+        {"type": "max_grade_level", "value": 6, "label": "Reading grade level 6 or below"},
+        {"type": "regex", "value": "\\blike\\b|\\bimagine\\b|\\bthink of\\b|\\bjust as\\b", "label": "Uses an everyday analogy"}
+      ],
+      "golden_output": "The internet is like a giant mail system for computers. When you watch a video, your computer sends a tiny note asking for it. The note zips through wires to another computer far away. That computer sends the video back in lots of small pieces. Your computer puts the pieces together, like a puzzle. It all happens in less than a blink!"
+    },
+    {
+      "id": "sky-blue",
+      "hidden": true,
+      "vars": {"concept": "why the sky is blue"},
+      "checks": [
+        {"type": "max_words", "value": 80, "label": "Under 80 words"},
+        {"type": "max_grade_level", "value": 6, "label": "Reading grade level 6 or below"},
+        {"type": "regex", "value": "\\blike\\b|\\bimagine\\b|\\bthink of\\b|\\bjust as\\b", "label": "Uses an everyday analogy"}
+      ],
+      "golden_output": "Sunlight looks white, but it is really all the colors mixed up. When sunlight hits the air, tiny bits of air bounce the blue light around the most. Think of it like throwing balls at a fence. The small blue balls bounce all over the place. So when you look up, you see blue light coming from every part of the sky!"
+    }
+  ],
+  "rubric": [
+    "A 10-year-old could understand it without help",
+    "The explanation is scientifically accurate (simplified, but not wrong)"
+  ],
+  "hints": [
+    "Who is your prompt written for right now? Does the model know who will read the answer?",
+    "This is about audience. Telling the model who the reader is, and their reading level, changes vocabulary, sentence length, and examples far more than an adjective like 'simple'.",
+    "Try: 'You are a children's science writer. Explain {{concept}} to a curious 10-year-old in under 80 words. Use short sentences, everyday words, and one analogy that starts with \"Think of it like...\"'"
+  ],
+  "reference_prompt": "You are a friendly children's science writer.\n\nExplain {{concept}} to a curious 10-year-old.\n\nRules:\n- Use fewer than 80 words.\n- Use short sentences (under 12 words each) and everyday words a 4th grader knows.\n- Include exactly one everyday analogy that starts with \"Think of it like\".\n- Do not use technical terms without explaining them.\n- Output only the explanation."
+}

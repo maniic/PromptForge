@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PromptForge",
+  title: "PromptForge Academy",
   description:
-    "Transform rough ideas into expert one-shot prompts using IBM Granite",
+    "Learn prompt engineering by doing: write prompts, run them on IBM Granite against real test cases, and get coached until they hold up.",
 };
 
 export default function RootLayout({

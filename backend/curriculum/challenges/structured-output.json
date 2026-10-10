@@ -1,0 +1,70 @@
+{
+  "id": "structured-output",
+  "track": "foundations",
+  "title": "Speak JSON",
+  "technique": "Structured output",
+  "difficulty": "beginner",
+  "brief": "Your CRM integration parses Granite's response with json.loads(). Extract the sender's name, company, requested meeting date (YYYY-MM-DD), and topic. The output must be valid JSON and nothing else.",
+  "lesson": {
+    "summary": "When code consumes the output, the prompt is an API contract. Specify the exact schema and value formats, and forbid any extra text. One example object is worth a paragraph of description.",
+    "why_it_matters": "Most enterprise LLM integrations (CRM enrichment, ticket routing, document extraction) fail not because the model is wrong, but because the output can't be parsed.",
+    "weak_example": "Get the important info from this email: {{email}}",
+    "strong_example": "Return ONLY a JSON object with keys name, company, meeting_date (YYYY-MM-DD), topic. No other text.\n\n<email>{{email}}</email>"
+  },
+  "variables": ["email"],
+  "starter_prompt": "Get the important info from this email: {{email}}",
+  "test_cases": [
+    {
+      "id": "northwind",
+      "vars": {
+        "email": "Hi there,\n\nMy name is Priya Raman and I lead procurement at Northwind Logistics. We're evaluating AI assistants for our dispatch team and I'd love to set up a demo. Would Thursday, March 12, 2026 work for you?\n\nBest,\nPriya"
+      },
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_keys", "value": ["name", "company", "meeting_date", "topic"], "label": "Has keys name, company, meeting_date, topic"},
+        {"type": "json_field", "path": "name", "value": "Priya Raman", "match": "contains", "label": "name is Priya Raman"},
+        {"type": "json_field", "path": "company", "value": "Northwind", "match": "contains", "label": "company is Northwind Logistics"},
+        {"type": "json_field", "path": "meeting_date", "value": "2026-03-12", "label": "meeting_date is ISO formatted (2026-03-12)"}
+      ],
+      "golden_output": "{\"name\": \"Priya Raman\", \"company\": \"Northwind Logistics\", \"meeting_date\": \"2026-03-12\", \"topic\": \"Demo of AI assistants for the dispatch team\"}"
+    },
+    {
+      "id": "bluefin",
+      "vars": {
+        "email": "Hello,\n\nThis is Marcus Oyelaran from Bluefin Health. Our compliance team has questions about how your platform handles patient data retention. Could we meet on April 3rd, 2026 to go through it?\n\nThanks,\nMarcus Oyelaran\nHead of Compliance, Bluefin Health"
+      },
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_keys", "value": ["name", "company", "meeting_date", "topic"], "label": "Has keys name, company, meeting_date, topic"},
+        {"type": "json_field", "path": "name", "value": "Marcus Oyelaran", "match": "contains", "label": "name is Marcus Oyelaran"},
+        {"type": "json_field", "path": "company", "value": "Bluefin", "match": "contains", "label": "company is Bluefin Health"},
+        {"type": "json_field", "path": "meeting_date", "value": "2026-04-03", "label": "meeting_date is ISO formatted (2026-04-03)"}
+      ],
+      "golden_output": "{\"name\": \"Marcus Oyelaran\", \"company\": \"Bluefin Health\", \"meeting_date\": \"2026-04-03\", \"topic\": \"Patient data retention compliance questions\"}"
+    },
+    {
+      "id": "pixelwise",
+      "hidden": true,
+      "vars": {
+        "email": "Hey!\n\nJordan Lee here, CTO at Pixelwise Studios. Loved your talk at the conference. Can we grab time on 2026-05-20 to discuss a possible integration partnership?\n\nCheers,\nJordan"
+      },
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_keys", "value": ["name", "company", "meeting_date", "topic"], "label": "Has keys name, company, meeting_date, topic"},
+        {"type": "json_field", "path": "name", "value": "Jordan Lee", "match": "contains", "label": "name is Jordan Lee"},
+        {"type": "json_field", "path": "company", "value": "Pixelwise", "match": "contains", "label": "company is Pixelwise Studios"},
+        {"type": "json_field", "path": "meeting_date", "value": "2026-05-20", "label": "meeting_date is ISO formatted"}
+      ],
+      "golden_output": "{\"name\": \"Jordan Lee\", \"company\": \"Pixelwise Studios\", \"meeting_date\": \"2026-05-20\", \"topic\": \"Integration partnership\"}"
+    }
+  ],
+  "rubric": [
+    "The topic field captures the purpose of the email in a short, accurate phrase"
+  ],
+  "hints": [
+    "Imagine a program, not a person, reading the output. What would make json.loads() fail?",
+    "This is about structured output. Name the exact keys and the format of each value (dates especially), and forbid anything outside the JSON: no greetings, no explanations, no markdown.",
+    "Try: 'Return ONLY a JSON object with keys \"name\", \"company\", \"meeting_date\" (YYYY-MM-DD), \"topic\". No markdown, no extra text.' Including one example JSON object helps even more."
+  ],
+  "reference_prompt": "Extract meeting request details from the email between the <email> tags.\n\nReturn ONLY a valid JSON object with exactly these keys:\n- \"name\": the sender's full name\n- \"company\": the sender's company\n- \"meeting_date\": the requested date in YYYY-MM-DD format\n- \"topic\": the purpose of the meeting in under 10 words\n\nExample output:\n{\"name\": \"Ana Silva\", \"company\": \"Acme Corp\", \"meeting_date\": \"2026-01-15\", \"topic\": \"Pricing review for enterprise plan\"}\n\nDo not include any text, markdown, or explanation outside the JSON.\n\n<email>\n{{email}}\n</email>"
+}

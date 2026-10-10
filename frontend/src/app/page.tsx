@@ -1,10 +1,5 @@
-import { Suspense } from 'react';
-import ForgeApp from '@/components/forge/ForgeApp';
+import AcademyHome from '@/components/academy/AcademyHome';
 
 export default function Home() {
-  return (
-    <Suspense>
-      <ForgeApp />
-    </Suspense>
-  );
+  return <AcademyHome />;
 }
