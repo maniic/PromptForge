@@ -121,3 +121,48 @@ export const TECHNIQUE_LABELS: Record<string, string> = {
   fallback: 'Fallback',
   variables: 'Variables',
 };
+
+// Roadmaps — mirror RoadmapNode / RoadmapSection / Roadmap / RoadmapSummary
+export type RoadmapCategory = 'start' | 'core' | 'field';
+
+export interface RoadmapNode {
+  id: string;
+  kind: 'concept' | 'challenge';
+  title: string;
+  summary: string;
+  points: string[];
+  weak_example: string | null;
+  strong_example: string | null;
+  challenge_id: string | null;
+  optional: boolean;
+  difficulty: Difficulty | null;
+  technique: string | null;
+}
+
+export interface RoadmapSection {
+  id: string;
+  title: string;
+  description: string;
+  nodes: RoadmapNode[];
+}
+
+export interface Roadmap {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  category: RoadmapCategory;
+  level: Difficulty;
+  sections: RoadmapSection[];
+}
+
+export interface RoadmapSummary {
+  id: string;
+  title: string;
+  tagline: string;
+  category: RoadmapCategory;
+  level: Difficulty;
+  node_ids: string[];
+  optional_node_ids: string[];
+  challenge_nodes: Record<string, string>;
+}

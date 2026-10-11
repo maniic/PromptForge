@@ -1,0 +1,145 @@
+{
+  "id": "dockerfile",
+  "track": "fields",
+  "title": "Policy-compliant Dockerfile",
+  "technique": "Policy constraints",
+  "difficulty": "advanced",
+  "brief": "Platform team policy for every Dockerfile: pin a specific base image tag (never :latest), run as a non-root USER, include a HEALTHCHECK, use COPY (never ADD), and copy the dependency manifest and install dependencies before copying the rest of the source so layers cache. Output only the Dockerfile.",
+  "lesson": {
+    "summary": "Infrastructure prompts are policy prompts. The model knows how to write a Dockerfile that runs; it doesn't know your organization's security and build policies unless you list them, each phrased so it's checkable.",
+    "why_it_matters": "Agents increasingly write infrastructure-as-code that ships to production. Policy violations like root containers, unpinned images, and missing health checks are exactly what compliance scanners flag. Put the policy in the prompt and the first draft passes.",
+    "weak_example": "dockerfile for {{app}}",
+    "strong_example": "Write a Dockerfile for: {{app}}\nPolicy: pinned base tag (no :latest); non-root USER; HEALTHCHECK; COPY never ADD; copy manifests and install deps before copying the source. Output only the Dockerfile."
+  },
+  "variables": [
+    "app"
+  ],
+  "starter_prompt": "Write a Dockerfile for this app: {{app}}",
+  "test_cases": [
+    {
+      "id": "fastapi",
+      "vars": {
+        "app": "A Python FastAPI service. Dependencies are in requirements.txt. Start it with `uvicorn main:app --host 0.0.0.0 --port 8000`. Health endpoint: GET /health."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^FROM\\s+[^\\s:]+:[\\w.\\-]+",
+          "label": "Pins a base image tag"
+        },
+        {
+          "type": "not_contains",
+          "value": ":latest",
+          "label": "Never uses :latest"
+        },
+        {
+          "type": "regex",
+          "value": "^USER\\s+(?!root\\b)\\S+",
+          "label": "Runs as a non-root USER"
+        },
+        {
+          "type": "regex",
+          "value": "^HEALTHCHECK\\s",
+          "label": "Has a HEALTHCHECK"
+        },
+        {
+          "type": "regex",
+          "value": "\\A(?![\\s\\S]*^ADD\\s)",
+          "label": "Uses COPY, never ADD"
+        },
+        {
+          "type": "regex",
+          "value": "COPY\\s+requirements\\.txt[\\s\\S]*RUN\\s+pip install[\\s\\S]*COPY\\s+\\.\\s",
+          "label": "Installs dependencies before copying the source"
+        }
+      ],
+      "golden_output": "FROM python:3.11-slim\n\nWORKDIR /app\nRUN useradd --create-home appuser\n\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY . .\n\nUSER appuser\nEXPOSE 8000\nHEALTHCHECK --interval=30s --timeout=3s CMD python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\"\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n"
+    },
+    {
+      "id": "node",
+      "vars": {
+        "app": "A Node.js 20 Express API. Dependencies are in package.json and package-lock.json. Start it with `node server.js` on port 3000. Health endpoint: GET /healthz."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^FROM\\s+[^\\s:]+:[\\w.\\-]+",
+          "label": "Pins a base image tag"
+        },
+        {
+          "type": "not_contains",
+          "value": ":latest",
+          "label": "Never uses :latest"
+        },
+        {
+          "type": "regex",
+          "value": "^USER\\s+(?!root\\b)\\S+",
+          "label": "Runs as a non-root USER"
+        },
+        {
+          "type": "regex",
+          "value": "^HEALTHCHECK\\s",
+          "label": "Has a HEALTHCHECK"
+        },
+        {
+          "type": "regex",
+          "value": "\\A(?![\\s\\S]*^ADD\\s)",
+          "label": "Uses COPY, never ADD"
+        },
+        {
+          "type": "regex",
+          "value": "COPY\\s+package[\\s\\S]*RUN\\s+npm (ci|install)[\\s\\S]*COPY\\s+\\.\\s",
+          "label": "Installs dependencies before copying the source"
+        }
+      ],
+      "golden_output": "FROM node:20.17-alpine\n\nWORKDIR /app\n\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\n\nCOPY . .\n\nUSER node\nEXPOSE 3000\nHEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3000/healthz || exit 1\nCMD [\"node\", \"server.js\"]\n"
+    },
+    {
+      "id": "go",
+      "hidden": true,
+      "vars": {
+        "app": "A Go 1.22 HTTP service with go.mod and go.sum, built with `go build -o /app/server .`, listening on port 8080. Health endpoint: GET /health."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^FROM\\s+[^\\s:]+:[\\w.\\-]+",
+          "label": "Pins a base image tag"
+        },
+        {
+          "type": "not_contains",
+          "value": ":latest",
+          "label": "Never uses :latest"
+        },
+        {
+          "type": "regex",
+          "value": "^USER\\s+(?!root\\b)\\S+",
+          "label": "Runs as a non-root USER"
+        },
+        {
+          "type": "regex",
+          "value": "^HEALTHCHECK\\s",
+          "label": "Has a HEALTHCHECK"
+        },
+        {
+          "type": "regex",
+          "value": "\\A(?![\\s\\S]*^ADD\\s)",
+          "label": "Uses COPY, never ADD"
+        },
+        {
+          "type": "regex",
+          "value": "COPY\\s+go\\.(mod|sum)[\\s\\S]*RUN\\s+go mod download[\\s\\S]*COPY\\s+\\.\\s",
+          "label": "Installs dependencies before copying the source"
+        }
+      ],
+      "golden_output": "FROM golang:1.22-alpine AS build\nWORKDIR /src\nCOPY go.mod go.sum ./\nRUN go mod download\nCOPY . .\nRUN go build -o /app/server .\n\nFROM alpine:3.20\nRUN adduser -D appuser\nCOPY --from=build /app/server /app/server\nUSER appuser\nEXPOSE 8080\nHEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:8080/health || exit 1\nCMD [\"/app/server\"]\n"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "Count the policy rules in the brief, then count how many your prompt states.",
+    "This is about policy constraints for infrastructure code. State every rule as something a scanner could check, including the build-order rule about installing dependencies before copying the source.",
+    "Add a 'Policy (all mandatory):' list: FROM with a pinned tag, never :latest; create and switch to a non-root USER; HEALTHCHECK hitting the health endpoint; COPY not ADD; copy the dependency manifest and install before `COPY . .`."
+  ],
+  "reference_prompt": "You are a platform engineer. Write a production Dockerfile for: {{app}}\n\nCompany policy (every rule is mandatory):\n1. FROM must pin a specific version tag. Never use :latest.\n2. Copy only the dependency manifest(s) first, install dependencies, and only then COPY . . so dependency layers are cached.\n3. Use COPY, never ADD.\n4. Create or use a non-root user and switch to it with USER before CMD.\n5. Add a HEALTHCHECK that calls the service's health endpoint.\n\nOutput only the Dockerfile contents, with no markdown fences and no explanation."
+}

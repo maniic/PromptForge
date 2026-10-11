@@ -1,0 +1,93 @@
+{
+  "id": "devops",
+  "order": 13,
+  "category": "field",
+  "level": "advanced",
+  "title": "DevOps & Platform",
+  "tagline": "Policy-driven infrastructure and safe automation.",
+  "description": "Let agents write infrastructure and run automation without surprises: policies as prompts, small verifiable rollouts, and hard guardrails around anything destructive.",
+  "sections": [
+    {
+      "id": "do-foundations",
+      "title": "Foundations",
+      "description": "Rules and machine-readable output.",
+      "nodes": [
+        {
+          "id": "constraints",
+          "kind": "challenge",
+          "challenge_id": "constraints"
+        },
+        {
+          "id": "structured-output",
+          "kind": "challenge",
+          "challenge_id": "structured-output"
+        }
+      ]
+    },
+    {
+      "id": "do-iac",
+      "title": "Infrastructure as code",
+      "description": "Policy-compliant from the first draft.",
+      "nodes": [
+        {
+          "id": "dockerfile",
+          "kind": "challenge",
+          "challenge_id": "dockerfile"
+        },
+        {
+          "id": "do-policy",
+          "kind": "concept",
+          "title": "Policy as prompt",
+          "summary": "Your platform's security and reliability rules (pinned versions, non-root containers, resource limits, health checks) are exactly the constraints an agent needs. Put them in the prompt or rules file as a checklist the output can be verified against.",
+          "points": [
+            "Phrase every rule so a scanner or reviewer can check it.",
+            "Include the reason for non-obvious rules; models follow reasons better.",
+            "Ask the agent to check its output against the list before answering.",
+            "Back the prompt with real policy checks in CI."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "do-automation",
+      "title": "Automation",
+      "description": "Plan the rollout, gate the risk.",
+      "nodes": [
+        {
+          "id": "task-decomposition",
+          "kind": "challenge",
+          "challenge_id": "task-decomposition"
+        },
+        {
+          "id": "agent-guardrails",
+          "kind": "challenge",
+          "challenge_id": "agent-guardrails"
+        }
+      ]
+    },
+    {
+      "id": "do-operate",
+      "title": "Operate",
+      "description": "Review changes and limit blast radius.",
+      "nodes": [
+        {
+          "id": "review-agent",
+          "kind": "challenge",
+          "challenge_id": "review-agent"
+        },
+        {
+          "id": "do-least-priv",
+          "kind": "concept",
+          "title": "Least privilege for agents",
+          "summary": "An agent should have only the permissions its task needs: read-only by default, scoped credentials, and no production access without approval. Prompts set intent; permissions enforce it.",
+          "points": [
+            "Start agents read-only and grant write access per task.",
+            "Use short-lived, narrowly scoped credentials.",
+            "Require approval for production changes and anything irreversible.",
+            "Never paste secrets into prompts; reference them through the environment."
+          ]
+        }
+      ]
+    }
+  ]
+}

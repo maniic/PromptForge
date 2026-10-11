@@ -1,0 +1,91 @@
+{
+  "id": "backend",
+  "order": 11,
+  "category": "field",
+  "level": "intermediate",
+  "title": "Backend Engineer",
+  "tagline": "Contracts, conventions, and correctness for services and APIs.",
+  "description": "Use agents to design and build services that hold up: contracts before code, house conventions in context, failure paths specified, and every change verified.",
+  "sections": [
+    {
+      "id": "be-foundations",
+      "title": "Foundations",
+      "description": "Machine-readable output and grounded answers.",
+      "nodes": [
+        {
+          "id": "structured-output",
+          "kind": "challenge",
+          "challenge_id": "structured-output"
+        },
+        {
+          "id": "grounding",
+          "kind": "challenge",
+          "challenge_id": "grounding"
+        }
+      ]
+    },
+    {
+      "id": "be-design",
+      "title": "Design",
+      "description": "Agree the contract and the plan.",
+      "nodes": [
+        {
+          "id": "api-contract",
+          "kind": "challenge",
+          "challenge_id": "api-contract"
+        },
+        {
+          "id": "task-decomposition",
+          "kind": "challenge",
+          "challenge_id": "task-decomposition"
+        },
+        {
+          "id": "be-errors",
+          "kind": "concept",
+          "title": "Errors are part of the contract",
+          "summary": "Ask agents to specify failure behaviour as carefully as the happy path: which errors are possible, which status codes they map to, and what the client sees. Unspecified error handling is where agent-written services break.",
+          "points": [
+            "Ask for the error cases before the implementation.",
+            "Map each error to a status code and a response shape.",
+            "Require validation and idempotency rules to be stated explicitly.",
+            "Make tests cover at least one failure path per endpoint."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "be-build",
+      "title": "Build",
+      "description": "Conventions and tests drive the implementation.",
+      "nodes": [
+        {
+          "id": "context-engineering",
+          "kind": "challenge",
+          "challenge_id": "context-engineering"
+        },
+        {
+          "id": "tests-first",
+          "kind": "challenge",
+          "challenge_id": "tests-first"
+        }
+      ]
+    },
+    {
+      "id": "be-ship",
+      "title": "Ship safely",
+      "description": "Review and defend.",
+      "nodes": [
+        {
+          "id": "review-agent",
+          "kind": "challenge",
+          "challenge_id": "review-agent"
+        },
+        {
+          "id": "injection-defense",
+          "kind": "challenge",
+          "challenge_id": "injection-defense"
+        }
+      ]
+    }
+  ]
+}

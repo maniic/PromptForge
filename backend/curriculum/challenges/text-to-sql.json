@@ -1,0 +1,172 @@
+{
+  "id": "text-to-sql",
+  "track": "fields",
+  "title": "Text to SQL",
+  "technique": "Schema grounding",
+  "difficulty": "intermediate",
+  "brief": "Analysts ask questions in plain English; the model answers with one PostgreSQL query against the given schema. Output only the SQL: a single SELECT statement ending in a semicolon, with no markdown and no explanation. Use only the tables and columns in the schema. Money is stored in cents.",
+  "lesson": {
+    "summary": "Text-to-SQL is grounding plus a strict output contract. The model must use only the schema you give it, not invent columns, and produce exactly one runnable statement. Facts about the data, like 'money is in cents', belong in the prompt too.",
+    "why_it_matters": "SQL from an LLM often runs straight against a database. A chatty answer breaks the pipeline, an invented column errors, and a misread unit gives confidently wrong numbers to decision-makers.",
+    "weak_example": "{{question}}",
+    "strong_example": "Schema:\n{{schema}}\nMoney is in cents.\n\nWrite ONE PostgreSQL SELECT that answers: {{question}}\nUse only these tables and columns. Output only the SQL, ending with a semicolon."
+  },
+  "variables": [
+    "schema",
+    "question"
+  ],
+  "starter_prompt": "{{question}}\n\nTables: {{schema}}",
+  "test_cases": [
+    {
+      "id": "customers-by-country",
+      "vars": {
+        "schema": "customers(id, name, country)\norders(id, customer_id, total_cents, created_at)",
+        "question": "How many customers are there in each country? Show the country and the count, largest first."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "\\A\\s*SELECT\\b",
+          "label": "Starts with SELECT (no prose or markdown)"
+        },
+        {
+          "type": "regex",
+          "value": ";\\s*\\Z",
+          "label": "Ends with a semicolon"
+        },
+        {
+          "type": "regex_count",
+          "value": ";",
+          "max": 1,
+          "label": "Exactly one statement"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "```",
+            "DELETE",
+            "UPDATE",
+            "DROP",
+            "INSERT"
+          ],
+          "label": "Read-only SQL, no markdown"
+        },
+        {
+          "type": "contains",
+          "value": [
+            "GROUP BY",
+            "country"
+          ],
+          "label": "Groups by country"
+        },
+        {
+          "type": "regex",
+          "value": "ORDER BY[\\s\\S]*DESC",
+          "label": "Sorts largest first"
+        }
+      ],
+      "golden_output": "SELECT country, COUNT(*) AS customer_count\nFROM customers\nGROUP BY country\nORDER BY customer_count DESC;"
+    },
+    {
+      "id": "revenue-per-customer",
+      "vars": {
+        "schema": "customers(id, name, country)\norders(id, customer_id, total_cents, created_at)",
+        "question": "What is the total revenue in dollars for each customer name?"
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "\\A\\s*SELECT\\b",
+          "label": "Starts with SELECT (no prose or markdown)"
+        },
+        {
+          "type": "regex",
+          "value": ";\\s*\\Z",
+          "label": "Ends with a semicolon"
+        },
+        {
+          "type": "regex_count",
+          "value": ";",
+          "max": 1,
+          "label": "Exactly one statement"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "```",
+            "DELETE",
+            "UPDATE",
+            "DROP",
+            "INSERT"
+          ],
+          "label": "Read-only SQL, no markdown"
+        },
+        {
+          "type": "contains",
+          "value": [
+            "JOIN",
+            "SUM(",
+            "total_cents"
+          ],
+          "label": "Joins orders and sums total_cents"
+        },
+        {
+          "type": "regex",
+          "value": "/\\s*100",
+          "label": "Converts cents to dollars"
+        }
+      ],
+      "golden_output": "SELECT c.name, SUM(o.total_cents) / 100.0 AS revenue_dollars\nFROM customers c\nJOIN orders o ON o.customer_id = c.id\nGROUP BY c.name;"
+    },
+    {
+      "id": "no-orders",
+      "hidden": true,
+      "vars": {
+        "schema": "customers(id, name, country)\norders(id, customer_id, total_cents, created_at)",
+        "question": "Which customers have never placed an order?"
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "\\A\\s*SELECT\\b",
+          "label": "Starts with SELECT (no prose or markdown)"
+        },
+        {
+          "type": "regex",
+          "value": ";\\s*\\Z",
+          "label": "Ends with a semicolon"
+        },
+        {
+          "type": "regex_count",
+          "value": ";",
+          "max": 1,
+          "label": "Exactly one statement"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "```",
+            "DELETE",
+            "UPDATE",
+            "DROP",
+            "INSERT"
+          ],
+          "label": "Read-only SQL, no markdown"
+        },
+        {
+          "type": "regex",
+          "value": "LEFT JOIN[\\s\\S]*IS NULL|NOT EXISTS|NOT IN",
+          "label": "Correctly finds rows with no match"
+        }
+      ],
+      "golden_output": "SELECT c.name\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "Imagine your output being passed straight to a database driver. What in the current outputs would make it fail?",
+    "This is schema grounding with a strict output contract. Provide the schema as the only source of truth, state data facts like units, and demand exactly one SELECT statement with no markdown.",
+    "Try: 'Using ONLY this schema: {{schema}} (money is in cents), write one PostgreSQL SELECT answering: {{question}}. Output only the SQL, no ``` fences, ending with a semicolon.'"
+  ],
+  "reference_prompt": "You are a PostgreSQL expert writing queries for an analytics tool that executes your output directly.\n\nSchema (the ONLY tables and columns that exist):\n{{schema}}\n\nFacts: money columns ending in _cents are stored in cents; divide by 100.0 to get dollars.\n\nQuestion: {{question}}\n\nRules:\n- Output exactly one read-only SELECT statement, ending with a semicolon.\n- Use only tables and columns from the schema.\n- No markdown fences, no comments, no explanation."
+}

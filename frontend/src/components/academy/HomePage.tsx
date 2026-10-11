@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check, X } from 'lucide-react';
-import { getTracks } from '@/lib/learn-api';
-import { useProgress } from '@/lib/progress';
+import { getRoadmaps, getTracks } from '@/lib/learn-api';
+import { useProgress, useRoadmapStatus } from '@/lib/progress';
 import { toProblems } from '@/lib/curriculum';
-import type { Track } from '@/types/learn';
+import { summaryCompletion } from '@/lib/roadmap';
+import type { RoadmapSummary, Track } from '@/types/learn';
 import { TopNav } from '@/components/academy/TopNav';
-import { DifficultyBadge } from '@/components/academy/DifficultyBadge';
+import { RoadmapCard } from '@/components/academy/RoadmapCard';
 
 const STEPS = [
   {
@@ -25,17 +26,25 @@ const STEPS = [
   },
 ] as const;
 
+const LADDER = [
+  { level: 'Vibe', example: 'add login lol', note: 'The model guesses everything.' },
+  { level: 'Prompt', example: 'You are a senior engineer. Add email/password login. Output the code.', note: 'Role, task, format.' },
+  { level: 'Spec', example: 'Goal · Assumptions · Plan · Acceptance criteria', note: 'Done is defined before code exists.' },
+  { level: 'Agent brief', example: 'Spec + repo rules + tests to pass + what needs approval', note: 'An agent can run with it safely.' },
+] as const;
+
 export default function HomePage() {
   const [tracks, setTracks] = useState<Track[] | null>(null);
+  const [roadmaps, setRoadmaps] = useState<RoadmapSummary[] | null>(null);
   const progress = useProgress();
+  const statuses = useRoadmapStatus();
 
   useEffect(() => {
     getTracks().then(setTracks).catch(() => setTracks([]));
+    getRoadmaps().then(setRoadmaps).catch(() => setRoadmaps([]));
   }, []);
 
   const problems = useMemo(() => toProblems(tracks ?? []), [tracks]);
-  const next = problems.find((p) => !progress[p.id]?.passed) ?? problems[0];
-  const started = problems.some((p) => (progress[p.id]?.attempts ?? 0) > 0);
 
   return (
     <div className="min-h-screen">
@@ -45,38 +54,61 @@ export default function HomePage() {
       <section className="border-b border-line">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
           <div>
-            <p className="font-mono text-xs text-brand">{'// prompt engineering, practiced'}</p>
+            <p className="font-mono text-xs text-brand">{'// from vibe coding to agentic development'}</p>
             <h1 className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">
-              Learn prompt engineering by solving problems.
+              Stop asking models to &ldquo;do this for me.&rdquo; Learn to direct them.
             </h1>
             <p className="mt-5 max-w-xl text-base leading-relaxed text-fg-muted">
-              Like LeetCode, but the code is a prompt. Write one, run it on IBM Granite against real test cases,
-              see which checks fail, and iterate until it holds up on inputs you can&apos;t see.
+              Pick a roadmap (general, agentic development, or your field) and work through hands-on challenges. Write
+              the prompt, run it on IBM Granite against real test cases, see which checks fail, and iterate until it
+              holds up on inputs you can&apos;t see.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={next ? `/challenge/${next.id}` : '/problems'}
+                href="/roadmaps"
                 className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-strong px-5 text-sm font-medium text-white transition-colors hover:bg-brand"
               >
-                {started && next ? `Continue: ${next.title}` : 'Start solving'}
+                Choose a roadmap
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/problems"
                 className="inline-flex h-10 items-center rounded-lg border border-line-strong px-5 text-sm text-fg-muted transition-colors hover:text-fg"
               >
-                Browse problems
+                Browse all problems
               </Link>
             </div>
             <dl className="mt-10 flex gap-10 text-sm">
-              <Stat value={problems.length || 9} label="problems" />
-              <Stat value={tracks?.length || 4} label="tracks" />
-              <Stat value="13" label="check types" />
+              <Stat value={roadmaps?.length || 6} label="roadmaps" />
+              <Stat value={problems.length || 19} label="graded problems" />
+              <Stat value="14" label="check types" />
             </dl>
           </div>
 
           <ResultMock />
         </div>
+      </section>
+
+      {/* The progression */}
+      <section className="mx-auto max-w-6xl px-4 pt-16">
+        <h2 className="text-xl font-semibold tracking-tight">From vibe to agent brief</h2>
+        <p className="mt-1 text-sm text-fg-subtle">The progression every roadmap walks you through.</p>
+        <ol className="mt-6 grid gap-3 md:grid-cols-4">
+          {LADDER.map((step, i) => (
+            <li key={step.level} className="relative rounded-xl border border-line bg-panel p-5">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-fg-subtle">L{i}</span>
+                <span className={i === 0 ? 'font-semibold text-bad' : i === LADDER.length - 1 ? 'font-semibold text-ok' : 'font-semibold'}>
+                  {step.level}
+                </span>
+              </div>
+              <p className="mt-3 rounded-md bg-raised px-3 py-2 font-mono text-[12px] leading-relaxed text-fg-muted">
+                {step.example}
+              </p>
+              <p className="mt-3 text-[13px] text-fg-subtle">{step.note}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* How it works */}
@@ -93,51 +125,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Tracks */}
+      {/* Roadmaps */}
       <section className="mx-auto max-w-6xl px-4 pb-20">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xl font-semibold tracking-tight">Learning tracks</h2>
-          <Link href="/problems" className="text-sm text-brand hover:underline">
-            All problems →
+          <h2 className="text-xl font-semibold tracking-tight">Pick a roadmap</h2>
+          <Link href="/roadmaps" className="text-sm text-brand hover:underline">
+            All roadmaps →
           </Link>
         </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {tracks?.map((t) => {
-            const items = problems.filter((p) => p.trackId === t.id);
-            const done = items.filter((p) => progress[p.id]?.passed).length;
-            return (
-              <div key={t.id} className="rounded-xl border border-line bg-panel p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-medium">{t.title}</h3>
-                    <p className="mt-1 text-sm text-fg-subtle">{t.description}</p>
-                  </div>
-                  <span className="shrink-0 font-mono text-xs text-fg-subtle">
-                    {done}/{items.length}
-                  </span>
-                </div>
-                <ul className="mt-4 divide-y divide-line border-t border-line">
-                  {items.map((p) => (
-                    <li key={p.id}>
-                      <Link
-                        href={`/challenge/${p.id}`}
-                        className="flex items-center gap-3 py-2.5 text-sm transition-colors hover:text-brand"
-                      >
-                        {progress[p.id]?.passed ? (
-                          <Check className="h-3.5 w-3.5 text-ok" />
-                        ) : (
-                          <span className="h-3.5 w-3.5 rounded-full border border-line-strong" />
-                        )}
-                        <span className="flex-1">
-                          {p.number}. {p.title}
-                        </span>
-                        <DifficultyBadge difficulty={p.difficulty} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {roadmaps?.map((r) => {
+            const { done, total } = summaryCompletion(r, statuses, progress);
+            return <RoadmapCard key={r.id} roadmap={r} done={done} total={total} featured={r.category === 'core'} />;
           })}
         </div>
       </section>

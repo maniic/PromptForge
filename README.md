@@ -17,6 +17,21 @@ The core idea is that **a prompt is a program, so test it like one.** Every chal
 | **Socratic coach** | A three-level hint ladder: nudge → concept → pattern. It never hands over a full prompt |
 | **Expert reference** | Unlocks after a pass or 3 attempts, so learners compare structure after they've struggled with it |
 
+## Roadmaps
+
+Learning paths in the style of roadmap.sh. Pick one and work through it step by step: each step is a short **concept** lesson or a **challenge** graded on Granite.
+
+| Roadmap | Focus |
+|---------|-------|
+| **Prompt Engineering** (start here) | How models read prompts, then the core techniques |
+| **Agentic Software Development** (core) | From vibe coding ("do this for me") to agent briefs: specs, context engineering and rules files, task decomposition, tests-first, the agent loop, guardrails, reviewer agents, and multi-agent orchestration |
+| **Frontend Engineer** | Accessible, typed components that reuse your design system |
+| **Backend Engineer** | API contracts, error behaviour, conventions, and verification |
+| **Data & Analytics** | Text-to-SQL grounded in your schema and data semantics |
+| **DevOps & Platform** | Policy-as-prompt infrastructure, guardrails, least privilege for agents |
+
+Progress is tracked per roadmap: challenge steps complete when you pass them, and concept steps are marked by hand.
+
 ## Curriculum
 
 | Track | Challenges |
@@ -25,6 +40,8 @@ The core idea is that **a prompt is a program, so test it like one.** Every chal
 | **Steering the Model** | Few-shot examples · Explicit constraints · Step-by-step reasoning |
 | **Trustworthy AI** | Grounding & fallbacks (RAG "NOT IN CONTEXT") · Delimiters & prompt-injection defense |
 | **Capstone** | Meeting notes → action-item JSON (every technique combined) |
+| **Agentic Development** | Vibe → spec · Context engineering · Task decomposition · Tests first · Agent guardrails · Reviewer agent |
+| **In the Field** | Accessible React component · API contract · Text-to-SQL · Policy-compliant Dockerfile |
 
 Challenges are **data, not code**: each one is a JSON file in `backend/curriculum/challenges/` holding a brief, a lesson, test cases, a rubric, three authored hints, and a reference solution. Every test case also carries a *golden output*, and the test suite checks that it passes its own checks. That way no challenge can ship impossible to pass, and a naive "Sure! Here's..." answer is checked to fail every challenge.
 
@@ -71,6 +88,7 @@ The original PromptForge lives on at `/lab` as free practice. Forge turns a roug
 | `GET /api/challenges/{id}` | Brief, lesson, public test cases (hidden inputs and ids masked) |
 | `POST /api/challenges/{id}/attempt` | `mode: "run"` = visible tests only (quick, unscored); `"submit"` = all tests + judge, scored and logged |
 | `POST /api/coach` | Socratic hint, level 1-3 |
+| `GET /api/roadmaps`, `GET /api/roadmaps/{id}` | Roadmap summaries; full roadmap with sections, concepts, and challenge steps |
 | `POST /api/techniques` | Static technique detection (no AI call), powers the live editor chips |
 | `GET /api/challenges/{id}/solution` | Reference prompt |
 | `GET /api/challenges/{id}/stats` | Community pass rate and average score |
@@ -149,8 +167,8 @@ Open http://localhost:3000
 ## Running the tests
 
 ```bash
-cd backend && source venv/bin/activate && cd .. && pytest backend/tests -q   # 100 tests
-cd frontend && npx vitest run                                                # 31 tests
+cd backend && source venv/bin/activate && cd .. && pytest backend/tests -q   # 169 tests
+cd frontend && npx vitest run                                                # 40 tests
 ```
 
 ## Roadmap

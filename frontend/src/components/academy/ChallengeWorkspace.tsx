@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { ChevronLeft, ChevronRight, CloudUpload, List, Loader2, Lock, Play, Users } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, CloudUpload, List, Loader2, Lock, Play, Users } from 'lucide-react';
 import {
   askCoach,
   getChallenge,
   getChallengeStats,
+  getRoadmap,
   getSolution,
   getTracks,
   missingVariables,
@@ -17,7 +18,15 @@ import { formatApiError } from '@/lib/api';
 import { loadProgress, recordAttempt, updateChallenge } from '@/lib/progress';
 import { toProblems } from '@/lib/curriculum';
 import { useSplit } from '@/lib/use-split';
-import type { AttemptMode, AttemptResponse, ChallengeDetail, ChallengeStats, CoachResponse, Track } from '@/types/learn';
+import type {
+  AttemptMode,
+  AttemptResponse,
+  ChallengeDetail,
+  ChallengeStats,
+  CoachResponse,
+  Roadmap,
+  Track,
+} from '@/types/learn';
 import { TopNav } from '@/components/academy/TopNav';
 import { PromptEditor } from '@/components/academy/PromptEditor';
 import { ConsolePanel, type ConsoleTab } from '@/components/academy/ConsolePanel';
@@ -28,9 +37,10 @@ import { cn } from '@/lib/utils';
 const SOLUTION_UNLOCK_ATTEMPTS = 3;
 type LeftTab = 'description' | 'learn' | 'coach' | 'solution';
 
-export default function ChallengeWorkspace({ challengeId }: { challengeId: string }) {
+export default function ChallengeWorkspace({ challengeId, roadmapId }: { challengeId: string; roadmapId?: string }) {
   const [challenge, setChallenge] = useState<ChallengeDetail | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [stats, setStats] = useState<ChallengeStats | null>(null);
   const [loadError, setLoadError] = useState(false);
 
@@ -86,11 +96,32 @@ export default function ChallengeWorkspace({ challengeId }: { challengeId: strin
     return () => clearTimeout(timer);
   }, [prompt, challenge]);
 
+  useEffect(() => {
+    if (!roadmapId) {
+      setRoadmap(null);
+      return;
+    }
+    let cancelled = false;
+    getRoadmap(roadmapId)
+      .then((r) => !cancelled && setRoadmap(r))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [roadmapId]);
+
   const problems = useMemo(() => toProblems(tracks), [tracks]);
-  const index = problems.findIndex((p) => p.id === challengeId);
-  const current = index >= 0 ? problems[index] : null;
-  const prev = index > 0 ? problems[index - 1] : null;
-  const next = index >= 0 ? problems[index + 1] ?? null : null;
+  const current = problems.find((p) => p.id === challengeId) ?? null;
+  // Prev/next follow the roadmap's challenge order when opened from a roadmap
+  const order = useMemo(() => {
+    if (!roadmap) return problems.map((p) => p.id);
+    const ids = roadmap.sections.flatMap((s) => s.nodes.map((n) => n.challenge_id)).filter((id): id is string => !!id);
+    return Array.from(new Set(ids));
+  }, [roadmap, problems]);
+  const index = order.indexOf(challengeId);
+  const suffix = roadmap ? `?roadmap=${roadmap.id}` : '';
+  const prev = index > 0 ? order[index - 1] : null;
+  const next = index >= 0 ? order[index + 1] ?? null : null;
 
   const missing = challenge ? missingVariables(prompt, challenge.variables) : [];
   const canRun = !!challenge && !running && prompt.trim().length >= 10 && missing.length === 0;
@@ -179,16 +210,25 @@ export default function ChallengeWorkspace({ challengeId }: { challengeId: strin
   const navControls = (
     <div className="flex items-center justify-between gap-2">
       <div className="hidden items-center gap-1 md:flex">
-        <Link
-          href="/problems"
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-raised hover:text-fg"
-        >
-          <List className="h-4 w-4" /> Problem list
-        </Link>
-        <NavArrow href={prev && `/challenge/${prev.id}`} label="Previous problem">
+        {roadmap ? (
+          <Link
+            href={`/roadmaps/${roadmap.id}`}
+            className="flex max-w-[220px] items-center gap-1.5 truncate rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-raised hover:text-fg"
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" /> <span className="truncate">{roadmap.title}</span>
+          </Link>
+        ) : (
+          <Link
+            href="/problems"
+            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-fg-muted hover:bg-raised hover:text-fg"
+          >
+            <List className="h-4 w-4" /> Problem list
+          </Link>
+        )}
+        <NavArrow href={prev && `/challenge/${prev}${suffix}`} label="Previous problem">
           <ChevronLeft className="h-4 w-4" />
         </NavArrow>
-        <NavArrow href={next && `/challenge/${next.id}`} label="Next problem">
+        <NavArrow href={next && `/challenge/${next}${suffix}`} label="Next problem">
           <ChevronRight className="h-4 w-4" />
         </NavArrow>
       </div>

@@ -1,0 +1,118 @@
+{
+  "id": "review-agent",
+  "track": "agentic",
+  "title": "The reviewer agent",
+  "technique": "Verification loops",
+  "difficulty": "advanced",
+  "brief": "Agent-written code needs review, and a reviewer that flags everything is as useless as one that flags nothing. Write the instructions for a reviewer agent that reads a diff and returns ONLY a JSON array of real bugs: [{\"line\": number, \"severity\": \"high\" | \"medium\" | \"low\", \"issue\": \"...\"}]. No style nitpicks. If the diff has no bugs, return [].",
+  "lesson": {
+    "summary": "A second agent that critiques the first is one of the most effective agentic patterns, but only if its output is precise. Tell the reviewer what counts as a finding, what doesn't, how to rate severity, and to return an empty result when the code is fine.",
+    "why_it_matters": "Verification loops (generate, review, fix) are how agentic systems catch their own mistakes. A noisy reviewer gets ignored; a precise one gets wired into CI.",
+    "weak_example": "Review this code: {{diff}}",
+    "strong_example": "Review the diff for real bugs only (correctness, security, crashes), not style. Return ONLY a JSON array of {\"line\", \"severity\": \"high\"|\"medium\"|\"low\", \"issue\"}. If there are no bugs, return [].\n\n<diff>{{diff}}</diff>"
+  },
+  "variables": [
+    "diff"
+  ],
+  "starter_prompt": "Review this code and tell me what you think: {{diff}}",
+  "test_cases": [
+    {
+      "id": "sql-injection",
+      "vars": {
+        "diff": "+def get_user(conn, username):\n+    query = f\"SELECT * FROM users WHERE name = '{username}'\"\n+    return conn.execute(query).fetchone()"
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"issue\\\"\\s*:",
+          "min": 1,
+          "label": "Reports at least one finding"
+        },
+        {
+          "type": "regex",
+          "value": "inject|parameteri[sz]",
+          "label": "Identifies the SQL injection"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"severity\\\"\\s*:\\s*\\\"high\\\"",
+          "label": "Rates the injection high severity"
+        }
+      ],
+      "golden_output": "[{\"line\": 2, \"severity\": \"high\", \"issue\": \"SQL injection: username is interpolated into the query. Use a parameterized query.\"}]"
+    },
+    {
+      "id": "clean-average",
+      "vars": {
+        "diff": "+def average(values: list[float]) -> float:\n+    if not values:\n+        raise ValueError(\"values must not be empty\")\n+    return sum(values) / len(values)"
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "json_array_length",
+          "value": 0,
+          "label": "Returns [] when there are no bugs"
+        }
+      ],
+      "golden_output": "[]"
+    },
+    {
+      "id": "off-by-one",
+      "hidden": true,
+      "vars": {
+        "diff": "+def last_n(items: list, n: int) -> list:\n+    \"\"\"Return the last n items.\"\"\"\n+    return items[len(items) - n - 1:]"
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"issue\\\"\\s*:",
+          "min": 1,
+          "label": "Reports at least one finding"
+        },
+        {
+          "type": "regex",
+          "value": "off.by.one|one (extra|too many)|extra (item|element)|n\\s*\\+\\s*1|too many",
+          "label": "Identifies the actual bug"
+        }
+      ],
+      "golden_output": "[{\"line\": 3, \"severity\": \"medium\", \"issue\": \"Off-by-one: the slice returns n + 1 items. Use items[-n:] and handle n == 0.\"}]"
+    },
+    {
+      "id": "clean-clamp",
+      "hidden": true,
+      "vars": {
+        "diff": "+def clamp(x: float, lo: float, hi: float) -> float:\n+    return max(lo, min(x, hi))"
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "json_array_length",
+          "value": 0,
+          "label": "Returns [] when there are no bugs"
+        }
+      ],
+      "golden_output": "[]"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "Two of these diffs are perfectly fine. What does your prompt tell the reviewer to do when that happens?",
+    "This is about precise verification. Define what counts as a finding (correctness, security, crashes) and what doesn't (style, naming), fix the JSON schema and severity scale, and make an empty array the explicit answer for clean code.",
+    "Try: 'Report only bugs that would cause wrong results, crashes, or security issues. Never comment on style. Return ONLY a JSON array of {line, severity, issue}. If you find no real bugs, return exactly [].'"
+  ],
+  "reference_prompt": "You are a strict but fair code reviewer. Review the diff between the <diff> tags.\n\nReport ONLY real bugs: incorrect results, crashes, security vulnerabilities, or data loss. Do NOT report style, naming, missing docs, or hypothetical improvements.\n\nReturn ONLY a JSON array (no markdown, no prose). Each finding is:\n{\"line\": <line number within the diff>, \"severity\": \"high\" | \"medium\" | \"low\", \"issue\": \"<what is wrong and how to fix it>\"}\nUse \"high\" for security issues and data loss.\n\nIf the diff contains no real bugs, return exactly: []\n\n<diff>\n{{diff}}\n</diff>"
+}

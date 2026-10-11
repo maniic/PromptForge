@@ -1,0 +1,69 @@
+{
+  "id": "data",
+  "order": 12,
+  "category": "field",
+  "level": "intermediate",
+  "title": "Data & Analytics",
+  "tagline": "Grounded answers, reliable SQL, and numbers you can trust.",
+  "description": "Prompt for analysis you can stake a decision on: structured extraction, step-by-step reasoning, SQL grounded in your real schema, and answers that refuse to guess.",
+  "sections": [
+    {
+      "id": "da-foundations",
+      "title": "Foundations",
+      "description": "Structure and reasoning.",
+      "nodes": [
+        {
+          "id": "structured-output",
+          "kind": "challenge",
+          "challenge_id": "structured-output"
+        },
+        {
+          "id": "reasoning",
+          "kind": "challenge",
+          "challenge_id": "reasoning"
+        }
+      ]
+    },
+    {
+      "id": "da-query",
+      "title": "Query",
+      "description": "From questions to correct SQL.",
+      "nodes": [
+        {
+          "id": "text-to-sql",
+          "kind": "challenge",
+          "challenge_id": "text-to-sql"
+        },
+        {
+          "id": "da-semantics",
+          "kind": "concept",
+          "title": "Give the model your data's meaning",
+          "summary": "A schema shows column names, not meaning. Units, time zones, soft-deleted rows, and business definitions ('active user', 'revenue') have to be stated, or the model will compute something plausible and wrong.",
+          "points": [
+            "State units (cents vs. dollars) and time zones.",
+            "Define business terms precisely.",
+            "Mention filters that always apply, such as excluding test accounts.",
+            "Ask for the query only, then run it and sanity-check the result yourself."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "da-trust",
+      "title": "Trust",
+      "description": "Grounded answers and clean extraction.",
+      "nodes": [
+        {
+          "id": "grounding",
+          "kind": "challenge",
+          "challenge_id": "grounding"
+        },
+        {
+          "id": "action-items",
+          "kind": "challenge",
+          "challenge_id": "action-items"
+        }
+      ]
+    }
+  ]
+}

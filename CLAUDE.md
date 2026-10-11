@@ -30,8 +30,9 @@ Note: `npm run lint` is broken (eslint.config.mjs needs ESLint 9; ESLint 8 is in
 3. Independent Granite calls run concurrently via asyncio.gather()
    (e.g. every test case in an attempt — one round trip regardless of N)
 4. LLM prompt text lives in backend/prompts/*.txt, never hardcoded in Python
-5. Challenges are data: backend/curriculum/challenges/*.json + tracks.json.
-   Adding or editing a lesson must not require Python changes
+5. Challenges and roadmaps are data: backend/curriculum/challenges/*.json,
+   tracks.json, and roadmaps/*.json. Adding or editing a lesson or roadmap must
+   not require Python changes
 6. Grading is deterministic first (grading_service.py, pure functions);
    the Granite judge only scores rubric criteria code can't check
 7. Never leak hidden test inputs, hidden test ids, golden outputs, or the
@@ -57,12 +58,23 @@ Note: `npm run lint` is broken (eslint.config.mjs needs ESLint 9; ESLint 8 is in
 - starter_prompt and reference_prompt must use every variable
 - tests/test_academy.py enforces all of the above plus "a chatty naive answer fails"
 
+## Roadmaps
+roadmap.sh-style learning paths in backend/curriculum/roadmaps/*.json:
+sections → nodes. A node is a "concept" (title, summary, points, optional
+weak/strong example; learner marks status by hand) or a "challenge"
+(challenge_id; done = challenge passed). Categories: start (general prompt
+engineering), core (agentic software development: vibe coding → agent briefs),
+field (frontend, backend, data, devops). Every challenge must appear in at least
+one roadmap (tests/test_roadmaps.py). Opening a challenge from a roadmap passes
+?roadmap=<id> so the workspace's back link and prev/next follow that roadmap.
+
 ## Demo-critical paths
 GET  /health → {"status":"ok"}
 GET  /api/tracks, GET /api/challenges/{id}
 POST /api/challenges/{id}/attempt → graded AttemptResponse
 POST /api/coach → hint (falls back to authored hints if Granite fails)
-Frontend: / (landing) → /problems (table) → /challenge/[id] (split-pane IDE:
+GET  /api/roadmaps, GET /api/roadmaps/{id}
+Frontend: / (landing) → /roadmaps → /roadmaps/[id] (graph + step drawer); /problems (table) → /challenge/[id] (split-pane IDE:
 problem tabs | prompt editor + test console; Ctrl/⌘+' run, Ctrl/⌘+Enter submit); /lab; /library
 
 ## Design system

@@ -15,13 +15,14 @@ PublicTestCase) are what the API returns.
 
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 CheckType = Literal[
     "contains",
     "not_contains",
     "equals",
     "regex",
+    "regex_count",
     "max_words",
     "min_words",
     "bullet_count",
@@ -47,6 +48,8 @@ class Check(BaseModel):
     value: Any = None
     path: Optional[str] = None  # json_field: dotted path, e.g. "contact.name"
     match: Literal["equals", "contains"] = "equals"  # json_field comparison mode
+    min: Optional[int] = None  # regex_count bounds (inclusive)
+    max: Optional[int] = None
 
 
 class TestCase(BaseModel):
@@ -223,3 +226,62 @@ class CoachResponse(BaseModel):
 
 class TechniqueRequest(BaseModel):
     prompt: str = Field(..., max_length=4000)
+
+
+# ---------------------------------------------------------------------------
+# Roadmaps (roadmap.sh-style learning paths over concepts and challenges)
+# ---------------------------------------------------------------------------
+
+
+class RoadmapNode(BaseModel):
+    """A step on a roadmap: a short concept lesson, or a link to a graded challenge."""
+
+    id: str
+    kind: Literal["concept", "challenge"]
+    title: Optional[str] = None  # challenge nodes default to the challenge's title
+    summary: Optional[str] = None
+    points: list[str] = Field(default_factory=list)
+    weak_example: Optional[str] = None
+    strong_example: Optional[str] = None
+    challenge_id: Optional[str] = None
+    optional: bool = False
+    # Filled in from the challenge when served
+    difficulty: Optional[str] = None
+    technique: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _check_kind(self) -> "RoadmapNode":
+        if self.kind == "challenge" and not self.challenge_id:
+            raise ValueError(f"challenge node '{self.id}' needs a challenge_id")
+        if self.kind == "concept" and not (self.title and self.summary and self.points):
+            raise ValueError(f"concept node '{self.id}' needs a title, summary, and points")
+        return self
+
+
+class RoadmapSection(BaseModel):
+    id: str
+    title: str
+    description: str
+    nodes: list[RoadmapNode]
+
+
+class Roadmap(BaseModel):
+    id: str
+    title: str
+    tagline: str
+    description: str
+    category: Literal["start", "core", "field"]
+    level: Literal["beginner", "intermediate", "advanced"]
+    order: int = 0
+    sections: list[RoadmapSection]
+
+
+class RoadmapSummary(BaseModel):
+    id: str
+    title: str
+    tagline: str
+    category: str
+    level: str
+    node_ids: list[str]
+    optional_node_ids: list[str]  # excluded from completion totals
+    challenge_nodes: dict[str, str]  # node id -> challenge id, for progress roll-ups

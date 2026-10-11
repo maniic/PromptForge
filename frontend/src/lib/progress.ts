@@ -84,3 +84,51 @@ export function useProgress(): ProgressMap {
 
   return progress;
 }
+
+// ---------------------------------------------------------------------------
+// Roadmap node status (concept nodes are marked by hand; challenge nodes
+// derive their status from challenge progress — see lib/roadmap.ts)
+// ---------------------------------------------------------------------------
+
+export type ManualStatus = 'in-progress' | 'done' | 'skipped';
+export type RoadmapStatusMap = Record<string, Record<string, ManualStatus>>;
+
+const ROADMAP_KEY = 'promptforge.roadmaps.v1';
+
+export function loadRoadmapStatus(): RoadmapStatusMap {
+  try {
+    const raw = window.localStorage.getItem(ROADMAP_KEY);
+    return raw ? (JSON.parse(raw) as RoadmapStatusMap) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function setNodeStatus(roadmapId: string, nodeId: string, status: ManualStatus | null): void {
+  const map = loadRoadmapStatus();
+  const nodes = { ...map[roadmapId] };
+  if (status) nodes[nodeId] = status;
+  else delete nodes[nodeId];
+  map[roadmapId] = nodes;
+  try {
+    window.localStorage.setItem(ROADMAP_KEY, JSON.stringify(map));
+  } catch {
+    // storage unavailable — status lives only in memory this session
+  }
+  window.dispatchEvent(new Event(EVENT));
+}
+
+export function useRoadmapStatus(): RoadmapStatusMap {
+  const [status, setStatus] = useState<RoadmapStatusMap>({});
+  const refresh = useCallback(() => setStatus(loadRoadmapStatus()), []);
+  useEffect(() => {
+    refresh();
+    window.addEventListener(EVENT, refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener(EVENT, refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, [refresh]);
+  return status;
+}

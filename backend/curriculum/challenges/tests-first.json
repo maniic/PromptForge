@@ -1,0 +1,124 @@
+{
+  "id": "tests-first",
+  "track": "agentic",
+  "title": "Acceptance tests first",
+  "technique": "Test-driven prompting",
+  "difficulty": "intermediate",
+  "brief": "Make the agent prove its work. Given a function spec, the output must contain two Python code blocks in this order: first pytest tests (at least 3 test functions, including an edge case), then the implementation with the exact signature from the spec.",
+  "lesson": {
+    "summary": "Asking for tests first turns a vague 'write X' into a verifiable contract. The agent has to pin down behaviour, including edge cases, before implementing, and you get a way to check the result automatically.",
+    "why_it_matters": "Agentic workflows run in loops: write, test, fix. Without tests the agent has no signal for 'done'. With tests it can iterate on its own until they pass, and you can trust the result.",
+    "weak_example": "write {{spec}}",
+    "strong_example": "Spec: {{spec}}\n\nFirst, a ```python block of pytest tests (3+ test functions, including an edge case). Then a second ```python block with the implementation using the exact signature."
+  },
+  "variables": [
+    "spec"
+  ],
+  "starter_prompt": "Write this function: {{spec}}",
+  "test_cases": [
+    {
+      "id": "slugify",
+      "vars": {
+        "spec": "slugify(title: str) -> str: lowercase the title, replace each run of non-alphanumeric characters with a single hyphen, and strip leading and trailing hyphens."
+      },
+      "checks": [
+        {
+          "type": "regex_count",
+          "value": "```python",
+          "min": 2,
+          "label": "Two Python code blocks"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*def test_\\w+",
+          "min": 3,
+          "label": "At least 3 test functions"
+        },
+        {
+          "type": "regex",
+          "value": "def test_[\\s\\S]*?```[\\s\\S]*?```python[\\s\\S]*?def slugify\\(",
+          "label": "Tests come before the implementation"
+        },
+        {
+          "type": "regex",
+          "value": "def slugify\\(\\s*title\\s*:\\s*str\\s*\\)\\s*->\\s*str",
+          "label": "Implementation matches the spec signature"
+        }
+      ],
+      "golden_output": "```python\nfrom slugify_mod import slugify\n\n\ndef test_basic_title():\n    assert slugify(\"Hello World\") == \"hello-world\"\n\n\ndef test_collapses_symbols():\n    assert slugify(\"C++ & Rust!!\") == \"c-rust\"\n\n\ndef test_strips_edge_hyphens():\n    assert slugify(\"  --Edge case--  \") == \"edge-case\"\n\n\ndef test_empty_string():\n    assert slugify(\"\") == \"\"\n```\n\n```python\nimport re\n\n\ndef slugify(title: str) -> str:\n    slug = re.sub(r\"[^a-z0-9]+\", \"-\", title.lower())\n    return slug.strip(\"-\")\n```"
+    },
+    {
+      "id": "isbn",
+      "vars": {
+        "spec": "is_valid_isbn10(code: str) -> bool: return True if code is a valid ISBN-10 (nine digits followed by a digit or 'X', where the weighted sum of digit times position 10..1 is divisible by 11), otherwise False."
+      },
+      "checks": [
+        {
+          "type": "regex_count",
+          "value": "```python",
+          "min": 2,
+          "label": "Two Python code blocks"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*def test_\\w+",
+          "min": 3,
+          "label": "At least 3 test functions"
+        },
+        {
+          "type": "regex",
+          "value": "def test_[\\s\\S]*?```[\\s\\S]*?```python[\\s\\S]*?def is_valid_isbn10\\(",
+          "label": "Tests come before the implementation"
+        },
+        {
+          "type": "regex",
+          "value": "def is_valid_isbn10\\(\\s*code\\s*:\\s*str\\s*\\)\\s*->\\s*bool",
+          "label": "Implementation matches the spec signature"
+        }
+      ],
+      "golden_output": "```python\nfrom isbn import is_valid_isbn10\n\n\ndef test_valid_isbn():\n    assert is_valid_isbn10(\"0306406152\") is True\n\n\ndef test_valid_with_x():\n    assert is_valid_isbn10(\"080442957X\") is True\n\n\ndef test_bad_checksum():\n    assert is_valid_isbn10(\"0306406153\") is False\n\n\ndef test_wrong_length():\n    assert is_valid_isbn10(\"12345\") is False\n```\n\n```python\ndef is_valid_isbn10(code: str) -> bool:\n    if len(code) != 10 or not code[:9].isdigit():\n        return False\n    if not (code[9].isdigit() or code[9] == \"X\"):\n        return False\n    digits = [int(c) for c in code[:9]] + [10 if code[9] == \"X\" else int(code[9])]\n    return sum(d * w for d, w in zip(digits, range(10, 0, -1))) % 11 == 0\n```"
+    },
+    {
+      "id": "chunk",
+      "hidden": true,
+      "vars": {
+        "spec": "chunk(items: list, size: int) -> list[list]: split items into consecutive chunks of length size; the last chunk may be shorter; raise ValueError if size < 1."
+      },
+      "checks": [
+        {
+          "type": "regex_count",
+          "value": "```python",
+          "min": 2,
+          "label": "Two Python code blocks"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*def test_\\w+",
+          "min": 3,
+          "label": "At least 3 test functions"
+        },
+        {
+          "type": "regex",
+          "value": "def test_[\\s\\S]*?```[\\s\\S]*?```python[\\s\\S]*?def chunk\\(",
+          "label": "Tests come before the implementation"
+        },
+        {
+          "type": "regex",
+          "value": "def chunk\\(\\s*items\\s*:\\s*list\\s*,\\s*size\\s*:\\s*int\\s*\\)",
+          "label": "Implementation matches the spec signature"
+        }
+      ],
+      "golden_output": "```python\nimport pytest\n\nfrom chunks import chunk\n\n\ndef test_even_split():\n    assert chunk([1, 2, 3, 4], 2) == [[1, 2], [3, 4]]\n\n\ndef test_last_chunk_shorter():\n    assert chunk([1, 2, 3], 2) == [[1, 2], [3]]\n\n\ndef test_invalid_size():\n    with pytest.raises(ValueError):\n        chunk([1], 0)\n```\n\n```python\ndef chunk(items: list, size: int) -> list[list]:\n    if size < 1:\n        raise ValueError(\"size must be at least 1\")\n    return [items[i:i + size] for i in range(0, len(items), size)]\n```"
+    }
+  ],
+  "rubric": [
+    "The tests cover the normal case and at least one meaningful edge case",
+    "The implementation would pass the tests it was given"
+  ],
+  "hints": [
+    "What does your prompt say about how the agent should prove its function works, and in what order?",
+    "This is test-driven prompting. Ask for the tests first, name how many and which kinds (including an edge case), then the implementation. Spell out the output format: two separate ```python blocks.",
+    "Try: 'First output a ```python block with at least 3 pytest test functions (include an edge case). Then a second ```python block with the implementation, using exactly this signature: ...'"
+  ],
+  "reference_prompt": "You are a careful Python engineer who practices test-driven development.\n\nSpec: {{spec}}\n\nRespond with exactly two fenced code blocks and nothing else:\n1. A ```python block containing pytest tests: at least 3 test functions named test_*, covering the normal case and at least one edge case (empty input, invalid input, or a boundary).\n2. A ```python block containing the implementation, using exactly the function name and signature from the spec, including type hints.\n\nThe tests block must come first."
+}

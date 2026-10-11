@@ -123,6 +123,18 @@ def _evaluate(check: Check, output: str) -> tuple[bool, str]:
         ok = re.search(str(value), text, flags=re.IGNORECASE | re.MULTILINE) is not None
         return ok, "" if ok else "required pattern not found"
 
+    if check.type == "regex_count":
+        n = len(re.findall(str(value), text, flags=re.IGNORECASE | re.MULTILINE))
+        too_few = check.min is not None and n < check.min
+        too_many = check.max is not None and n > check.max
+        if check.min is not None and check.max is not None:
+            bounds = f"{check.min} to {check.max}"
+        elif check.min is not None:
+            bounds = f"at least {check.min}"
+        else:
+            bounds = f"at most {check.max}"
+        return not (too_few or too_many), f"found {n} (expected {bounds})"
+
     if check.type == "max_words":
         n = len(_words(text))
         return n <= int(value), f"{n} words (limit {value})"

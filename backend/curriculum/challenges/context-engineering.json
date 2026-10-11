@@ -1,0 +1,166 @@
+{
+  "id": "context-engineering",
+  "track": "agentic",
+  "title": "Context is king",
+  "technique": "Context engineering",
+  "difficulty": "intermediate",
+  "brief": "Coding agents don't know your codebase's rules unless you tell them. Given the project's conventions file and a task, write a prompt that makes the agent write code that follows every convention. Output only the code.",
+  "lesson": {
+    "summary": "An agent's output can only be as good as its context. Context engineering means deliberately putting the project's rules, relevant interfaces, and examples in front of the model, either in the prompt or in a rules file the agent reads (AGENTS.md, CLAUDE.md), instead of hoping it guesses your conventions.",
+    "why_it_matters": "Code that works but ignores house rules (the wrong HTTP client, print debugging, silent None returns) fails review and creates cleanup work. Teams that invest in a good rules file get agent output that merges on the first try.",
+    "weak_example": "{{task}}",
+    "strong_example": "Follow EVERY rule in these project conventions:\n<conventions>\n{{conventions}}\n</conventions>\n\nTask: {{task}}\nBefore answering, check your code against each rule. Output only the code."
+  },
+  "variables": [
+    "conventions",
+    "task"
+  ],
+  "starter_prompt": "{{task}}\n\n(Some notes: {{conventions}})",
+  "test_cases": [
+    {
+      "id": "fetch-user",
+      "vars": {
+        "conventions": "Project conventions (from AGENTS.md):\n- Python 3.11 with type hints on every function, including the return type.\n- All HTTP calls go through http_client.get_json(url). Never import requests or httpx.\n- On failure, raise AppError(message). Never return None to signal an error.\n- Log with logger = logging.getLogger(__name__). Never use print().",
+        "task": "Write a function fetch_user(user_id: int) that loads a user from https://api.example.com/users/{user_id} and returns the JSON dict."
+      },
+      "checks": [
+        {
+          "type": "contains",
+          "value": "http_client.get_json",
+          "label": "Uses http_client.get_json for HTTP"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "import requests",
+            "import httpx",
+            "from requests",
+            "from httpx"
+          ],
+          "label": "Never imports requests or httpx"
+        },
+        {
+          "type": "contains",
+          "value": "AppError",
+          "label": "Raises AppError on failure"
+        },
+        {
+          "type": "contains",
+          "value": "getLogger(__name__)",
+          "label": "Uses the module logger"
+        },
+        {
+          "type": "not_contains",
+          "value": "print(",
+          "label": "No print() calls"
+        },
+        {
+          "type": "regex",
+          "value": "def fetch_user\\(\\s*user_id\\s*:\\s*int\\s*\\)\\s*->",
+          "label": "Typed signature with a return type"
+        }
+      ],
+      "golden_output": "import logging\n\nfrom app import http_client\nfrom app.errors import AppError\n\nlogger = logging.getLogger(__name__)\n\n\ndef fetch_user(user_id: int) -> dict:\n    url = f\"https://api.example.com/users/{user_id}\"\n    logger.info(\"Fetching user %s\", user_id)\n    data = http_client.get_json(url)\n    if not data:\n        raise AppError(f\"User {user_id} not found\")\n    return data\n"
+    },
+    {
+      "id": "exchange-rate",
+      "vars": {
+        "conventions": "Project conventions (from AGENTS.md):\n- Python 3.11 with type hints on every function, including the return type.\n- All HTTP calls go through http_client.get_json(url). Never import requests or httpx.\n- On failure, raise AppError(message). Never return None to signal an error.\n- Log with logger = logging.getLogger(__name__). Never use print().",
+        "task": "Write a function get_exchange_rate(base: str, quote: str) that returns the float rate from https://api.example.com/rates?base={base}&quote={quote} (the JSON looks like {\"rate\": 1.08})."
+      },
+      "checks": [
+        {
+          "type": "contains",
+          "value": "http_client.get_json",
+          "label": "Uses http_client.get_json for HTTP"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "import requests",
+            "import httpx",
+            "from requests",
+            "from httpx"
+          ],
+          "label": "Never imports requests or httpx"
+        },
+        {
+          "type": "contains",
+          "value": "AppError",
+          "label": "Raises AppError on failure"
+        },
+        {
+          "type": "contains",
+          "value": "getLogger(__name__)",
+          "label": "Uses the module logger"
+        },
+        {
+          "type": "not_contains",
+          "value": "print(",
+          "label": "No print() calls"
+        },
+        {
+          "type": "regex",
+          "value": "def get_exchange_rate\\(\\s*base\\s*:\\s*str\\s*,\\s*quote\\s*:\\s*str\\s*\\)\\s*->\\s*float",
+          "label": "Typed signature returning float"
+        }
+      ],
+      "golden_output": "import logging\n\nfrom app import http_client\nfrom app.errors import AppError\n\nlogger = logging.getLogger(__name__)\n\n\ndef get_exchange_rate(base: str, quote: str) -> float:\n    url = f\"https://api.example.com/rates?base={base}&quote={quote}\"\n    data = http_client.get_json(url)\n    if \"rate\" not in data:\n        logger.warning(\"No rate for %s/%s\", base, quote)\n        raise AppError(f\"No exchange rate for {base}/{quote}\")\n    return float(data[\"rate\"])\n"
+    },
+    {
+      "id": "list-repos",
+      "hidden": true,
+      "vars": {
+        "conventions": "Project conventions (from AGENTS.md):\n- Python 3.11 with type hints on every function, including the return type.\n- All HTTP calls go through http_client.get_json(url). Never import requests or httpx.\n- On failure, raise AppError(message). Never return None to signal an error.\n- Log with logger = logging.getLogger(__name__). Never use print().",
+        "task": "Write a function list_repo_names(org: str) that returns a list of repository names from https://api.example.com/orgs/{org}/repos (the JSON is a list of objects with a \"name\" field)."
+      },
+      "checks": [
+        {
+          "type": "contains",
+          "value": "http_client.get_json",
+          "label": "Uses the project's HTTP client"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "import requests",
+            "import httpx",
+            "from requests",
+            "from httpx"
+          ],
+          "label": "Never imports requests or httpx"
+        },
+        {
+          "type": "contains",
+          "value": "AppError",
+          "label": "Raises the project's error type on failure"
+        },
+        {
+          "type": "contains",
+          "value": "getLogger(__name__)",
+          "label": "Uses the module logger"
+        },
+        {
+          "type": "not_contains",
+          "value": "print(",
+          "label": "No print() calls"
+        },
+        {
+          "type": "regex",
+          "value": "def list_repo_names\\(\\s*org\\s*:\\s*str\\s*\\)\\s*->",
+          "label": "Typed signature with a return type"
+        }
+      ],
+      "golden_output": "import logging\n\nfrom app import http_client\nfrom app.errors import AppError\n\nlogger = logging.getLogger(__name__)\n\n\ndef list_repo_names(org: str) -> list[str]:\n    data = http_client.get_json(f\"https://api.example.com/orgs/{org}/repos\")\n    if not isinstance(data, list):\n        logger.error(\"Unexpected response for org %s\", org)\n        raise AppError(f\"Could not list repositories for {org}\")\n    return [repo[\"name\"] for repo in data]\n"
+    }
+  ],
+  "rubric": [
+    "The code correctly implements the requested task"
+  ],
+  "hints": [
+    "Where in your prompt does the model learn that these conventions are mandatory, not background reading?",
+    "This is context engineering. Put the rules in a clearly delimited block, say every rule is mandatory, and ask the agent to check its code against each rule before answering.",
+    "Try: 'Follow EVERY rule in <conventions>...</conventions>. They override your defaults. Task: {{task}}. Before answering, verify each rule. Output only the code.'"
+  ],
+  "reference_prompt": "You are a senior Python engineer contributing to an existing codebase.\n\nThe project's conventions are mandatory and override your usual habits:\n<conventions>\n{{conventions}}\n</conventions>\n\nTask: {{task}}\n\nBefore you answer, silently check your code against every convention: imports, HTTP client, error handling, logging, and type hints on the signature and return type.\nOutput only the Python code: imports, the module logger, and the function. No explanation."
+}

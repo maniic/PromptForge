@@ -1,0 +1,170 @@
+{
+  "id": "vibe-to-spec",
+  "track": "agentic",
+  "title": "From vibe to spec",
+  "technique": "Specification prompts",
+  "difficulty": "beginner",
+  "brief": "\"Add login lol\" is a vibe, not a task. Before a coding agent writes a line, it needs a spec. Write a prompt that turns a vague feature request and the project's stack into a planning document with these sections: ## Goal, ## Assumptions, ## Plan (numbered steps), and ## Acceptance criteria (at least 3 testable bullets). No code yet: planning only.",
+  "lesson": {
+    "summary": "Vibe coding hands the model a wish and hopes. Agentic development hands it a spec: the goal, the assumptions, the plan, and how you'll know it's done. Making the agent write the plan first lets you catch misunderstandings before any code exists.",
+    "why_it_matters": "Plan-then-execute is how teams get reliable results from coding agents on non-trivial work. Reviewing a plan takes seconds; untangling a wrong implementation takes hours.",
+    "weak_example": "add login lol",
+    "strong_example": "You are a senior engineer planning work for a coding agent. For the request below, write ## Goal, ## Assumptions, ## Plan (numbered steps), ## Acceptance criteria (3+ testable bullets). Do not write code.\n\nStack: {{stack}}\nRequest: {{request}}"
+  },
+  "variables": [
+    "request",
+    "stack"
+  ],
+  "starter_prompt": "{{request}} (we use {{stack}})",
+  "test_cases": [
+    {
+      "id": "login",
+      "vars": {
+        "request": "add login lol",
+        "stack": "Next.js 14 frontend, FastAPI backend, PostgreSQL"
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Goal",
+          "label": "Has a Goal section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Assumptions",
+          "label": "Has an Assumptions section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Plan",
+          "label": "Has a Plan section"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*\\d+[.)]\\s",
+          "min": 3,
+          "label": "Plan has at least 3 numbered steps"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Acceptance criteria\\s*\\n(?:\\s*[-*] .+\\n?){3,}",
+          "label": "At least 3 acceptance criteria bullets"
+        },
+        {
+          "type": "not_contains",
+          "value": "```",
+          "label": "No code yet (planning only)"
+        },
+        {
+          "type": "contains",
+          "value": "FastAPI",
+          "label": "Plans against the given stack (FastAPI)"
+        }
+      ],
+      "golden_output": "## Goal\nLet users sign in with email and password so that only authenticated users can reach their dashboard.\n\n## Assumptions\n- Users already exist in the PostgreSQL users table with hashed passwords.\n- Sessions use HTTP-only cookies; no third-party identity provider yet.\n- Sign-up and password reset are out of scope.\n\n## Plan\n1. Add a FastAPI POST /auth/login endpoint that verifies the password hash and sets a session cookie.\n2. Add a FastAPI dependency that rejects requests without a valid session.\n3. Build a Next.js login page with an email/password form and error states.\n4. Protect the dashboard route and redirect anonymous users to /login.\n5. Add a logout endpoint that clears the cookie.\n\n## Acceptance criteria\n- Valid credentials return 200 and set an HTTP-only session cookie.\n- Invalid credentials return 401 with a generic error message.\n- Visiting /dashboard without a session redirects to /login.\n- Logging out clears the cookie and blocks access to /dashboard.\n"
+    },
+    {
+      "id": "slow-dashboard",
+      "vars": {
+        "request": "make the dashboard faster its so slow",
+        "stack": "React SPA, Node/Express API, Redis available"
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Goal",
+          "label": "Has a Goal section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Assumptions",
+          "label": "Has an Assumptions section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Plan",
+          "label": "Has a Plan section"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*\\d+[.)]\\s",
+          "min": 3,
+          "label": "Plan has at least 3 numbered steps"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Acceptance criteria\\s*\\n(?:\\s*[-*] .+\\n?){3,}",
+          "label": "At least 3 acceptance criteria bullets"
+        },
+        {
+          "type": "not_contains",
+          "value": "```",
+          "label": "No code yet (planning only)"
+        },
+        {
+          "type": "contains",
+          "value": "Redis",
+          "label": "Plans against the given stack (Redis)"
+        }
+      ],
+      "golden_output": "## Goal\nCut the dashboard's load time so it is usable on typical connections.\n\n## Assumptions\n- \"Slow\" means the initial load; the target is under 2 seconds at p95.\n- The bottleneck is the API, which recomputes the same aggregates on every request.\n- Redis is available in every environment.\n\n## Plan\n1. Measure the current p95 load time and profile the Express endpoints the dashboard calls.\n2. Cache the expensive aggregate queries in Redis with a 60-second TTL.\n3. Return only the fields the React dashboard renders.\n4. Lazy-load the charts below the fold in the React SPA.\n\n## Acceptance criteria\n- p95 dashboard load time is under 2 seconds in staging.\n- Repeated aggregate requests within 60 seconds are served from Redis.\n- Dashboard numbers match the uncached values exactly.\n"
+    },
+    {
+      "id": "export",
+      "hidden": true,
+      "vars": {
+        "request": "users want to export their data",
+        "stack": "Django monolith, Celery workers, S3"
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Goal",
+          "label": "Has a Goal section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Assumptions",
+          "label": "Has an Assumptions section"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Plan",
+          "label": "Has a Plan section"
+        },
+        {
+          "type": "regex_count",
+          "value": "^\\s*\\d+[.)]\\s",
+          "min": 3,
+          "label": "Plan has at least 3 numbered steps"
+        },
+        {
+          "type": "regex",
+          "value": "^#{1,3}\\s*Acceptance criteria\\s*\\n(?:\\s*[-*] .+\\n?){3,}",
+          "label": "At least 3 acceptance criteria bullets"
+        },
+        {
+          "type": "not_contains",
+          "value": "```",
+          "label": "No code yet (planning only)"
+        },
+        {
+          "type": "contains",
+          "value": "Django",
+          "label": "Plans against the given stack"
+        }
+      ],
+      "golden_output": "## Goal\nLet users download a copy of all their data as a ZIP of JSON files.\n\n## Assumptions\n- Exports can take minutes, so they run in the background.\n- Files are stored in S3 and shared through expiring links.\n- Admin-only data is excluded.\n\n## Plan\n1. Add a Django view that starts an export and records its status.\n2. Run a Celery task that serializes the user's records and uploads the ZIP to S3.\n3. Email the user a pre-signed S3 link that expires in 24 hours.\n4. Show export status on the account settings page.\n\n## Acceptance criteria\n- Requesting an export creates a job and returns immediately.\n- The ZIP contains every record owned by the user and nothing else.\n- The download link stops working after 24 hours.\n"
+    }
+  ],
+  "rubric": [
+    "Acceptance criteria are specific and testable, not vague like 'works well'",
+    "The plan's steps are in a sensible order and actually address the request"
+  ],
+  "hints": [
+    "Your prompt passes the request straight through. What would a senior engineer ask for before letting anyone start coding?",
+    "This is spec-first prompting. Ask the agent to restate the goal, list its assumptions, plan the steps, and define acceptance criteria before writing any code, and name the exact section headings you expect.",
+    "Try: 'For the request below, write a plan with exactly these sections: ## Goal, ## Assumptions, ## Plan (numbered steps), ## Acceptance criteria (3+ testable bullets). Use the stack given. Do not write code.'"
+  ],
+  "reference_prompt": "You are a senior software engineer writing a plan that a coding agent will execute.\n\nStack: {{stack}}\nFeature request: \"{{request}}\"\n\nWrite a planning document in Markdown with exactly these sections, in this order:\n## Goal\nOne or two sentences describing the user-facing outcome.\n## Assumptions\nBullet points for anything the request leaves unclear. Make reasonable, explicit choices.\n## Plan\nA numbered list of 3 to 6 concrete steps that use the given stack by name.\n## Acceptance criteria\nAt least 3 bullet points, each objectively testable (a specific behaviour, status code, or measurable target).\n\nDo not write any code. Output only the planning document."
+}

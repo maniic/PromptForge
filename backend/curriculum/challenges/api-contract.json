@@ -1,0 +1,178 @@
+{
+  "id": "api-contract",
+  "track": "fields",
+  "title": "API contract first",
+  "technique": "Schema-first design",
+  "difficulty": "intermediate",
+  "brief": "Before an agent implements an endpoint, pin down the contract. Given a feature, output ONLY a JSON object: {\"method\": HTTP verb, \"path\": REST path, \"request_body\": object of field → type (or null), \"responses\": {status code: description}}. Responses must include the correct success code and at least one 4xx error.",
+  "lesson": {
+    "summary": "Agreeing the contract first (method, path, request shape, status codes) gives the implementing agent a precise target and gives you something to test against. It also surfaces design questions, like what 404 means here, before code exists.",
+    "why_it_matters": "Schema-first design is how backend teams parallelize work: frontend, backend, and test agents can all build against the same contract. Correct status codes are part of the contract, not an afterthought.",
+    "weak_example": "make an endpoint for {{feature}}",
+    "strong_example": "Design the REST endpoint for: {{feature}}\nReturn ONLY JSON: {\"method\", \"path\", \"request_body\": {field: type} or null, \"responses\": {\"<code>\": description}}. Use the correct success code (201 for creation, 204 for deletion) and include 4xx errors."
+  },
+  "variables": [
+    "feature"
+  ],
+  "starter_prompt": "Design an API for: {{feature}}",
+  "test_cases": [
+    {
+      "id": "create-todo",
+      "vars": {
+        "feature": "Create a new todo item with a title and an optional due date."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "json_keys",
+          "value": [
+            "method",
+            "path",
+            "request_body",
+            "responses"
+          ],
+          "label": "Has method, path, request_body, responses"
+        },
+        {
+          "type": "json_field",
+          "path": "path",
+          "value": "todo",
+          "match": "contains",
+          "label": "Path names the resource (todo)"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"4\\d\\d\\\"\\s*:",
+          "label": "Documents at least one 4xx error"
+        },
+        {
+          "type": "json_field",
+          "path": "method",
+          "value": "POST",
+          "label": "Uses POST to create"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"201\\\"\\s*:",
+          "label": "Success is 201 Created"
+        }
+      ],
+      "golden_output": "{\"method\": \"POST\", \"path\": \"/todos\", \"request_body\": {\"title\": \"string\", \"due_date\": \"string (YYYY-MM-DD), optional\"}, \"responses\": {\"201\": \"Todo created; returns the new todo\", \"400\": \"Missing or empty title\", \"422\": \"Invalid due_date format\"}}"
+    },
+    {
+      "id": "get-order",
+      "vars": {
+        "feature": "Fetch a single order by its id."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "json_keys",
+          "value": [
+            "method",
+            "path",
+            "request_body",
+            "responses"
+          ],
+          "label": "Has method, path, request_body, responses"
+        },
+        {
+          "type": "json_field",
+          "path": "path",
+          "value": "order",
+          "match": "contains",
+          "label": "Path names the resource (order)"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"4\\d\\d\\\"\\s*:",
+          "label": "Documents at least one 4xx error"
+        },
+        {
+          "type": "json_field",
+          "path": "method",
+          "value": "GET",
+          "label": "Uses GET to read"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"200\\\"\\s*:",
+          "label": "Success is 200 OK"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"404\\\"\\s*:",
+          "label": "Handles a missing order with 404"
+        }
+      ],
+      "golden_output": "{\"method\": \"GET\", \"path\": \"/orders/{order_id}\", \"request_body\": null, \"responses\": {\"200\": \"The order\", \"404\": \"No order with that id\"}}"
+    },
+    {
+      "id": "delete-comment",
+      "hidden": true,
+      "vars": {
+        "feature": "Delete a comment that the current user wrote."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "json_keys",
+          "value": [
+            "method",
+            "path",
+            "request_body",
+            "responses"
+          ],
+          "label": "Has method, path, request_body, responses"
+        },
+        {
+          "type": "json_field",
+          "path": "path",
+          "value": "comment",
+          "match": "contains",
+          "label": "Path names the resource"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"4\\d\\d\\\"\\s*:",
+          "label": "Documents at least one 4xx error"
+        },
+        {
+          "type": "json_field",
+          "path": "method",
+          "value": "DELETE",
+          "label": "Uses the right HTTP method"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"(204|200)\\\"\\s*:",
+          "label": "Uses an appropriate success code"
+        },
+        {
+          "type": "regex",
+          "value": "\\\"(403|404)\\\"\\s*:",
+          "label": "Handles comments the user can't delete"
+        }
+      ],
+      "golden_output": "{\"method\": \"DELETE\", \"path\": \"/comments/{comment_id}\", \"request_body\": null, \"responses\": {\"204\": \"Comment deleted\", \"403\": \"The comment belongs to another user\", \"404\": \"No comment with that id\"}}"
+    }
+  ],
+  "rubric": [
+    "The contract follows REST conventions and covers the realistic failure cases"
+  ],
+  "hints": [
+    "If a frontend developer built against your output today, what would they still have to guess?",
+    "This is schema-first design. Fix the exact JSON shape, and state the conventions you expect: verbs per action, resource-style paths, and correct status codes including errors.",
+    "Try: 'Return ONLY JSON {method, path, request_body, responses}. POST creates (201), GET reads (200, 404 if missing), DELETE removes (204). Always include the relevant 4xx errors.'"
+  ],
+  "reference_prompt": "You are an API designer. Design one REST endpoint for this feature: {{feature}}\n\nReturn ONLY a JSON object (no markdown, no explanation) with exactly these keys:\n- \"method\": the HTTP verb (POST to create, GET to read, PATCH/PUT to update, DELETE to remove)\n- \"path\": a plural resource path, using {id}-style placeholders\n- \"request_body\": an object mapping field names to types, or null if there is no body\n- \"responses\": an object mapping status codes (as strings) to short descriptions\n\nUse the correct success code (201 Created for creation, 200 for reads, 204 for deletes) and include every realistic 4xx error: 400/422 for invalid input, 403 for forbidden, 404 for not found."
+}

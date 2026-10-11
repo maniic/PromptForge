@@ -1,0 +1,182 @@
+{
+  "id": "agentic-development",
+  "order": 2,
+  "category": "core",
+  "level": "intermediate",
+  "title": "Agentic Software Development",
+  "tagline": "From vibe coding to directing coding agents with specs, context, and verification.",
+  "description": "Stop typing wishes into a chat box. Learn to brief coding agents the way a senior engineer writes a ticket: a clear spec, the right context, small verifiable tasks, tests as the finish line, guardrails for risky actions, and a review loop.",
+  "sections": [
+    {
+      "id": "beyond-vibes",
+      "title": "Beyond vibe coding",
+      "description": "Why 'do this for me' breaks down, and what replaces it.",
+      "nodes": [
+        {
+          "id": "ad-vibe",
+          "kind": "concept",
+          "title": "What vibe coding gets wrong",
+          "summary": "Vibe coding means typing a wish ('build me a habit tracker') and accepting whatever comes back. It's fine for throwaway prototypes and painful for software you have to maintain: the agent guesses requirements, ignores your conventions, and you can't tell whether the result is correct.",
+          "points": [
+            "No spec means the agent decides what 'done' means.",
+            "No context means it ignores your architecture and reinvents what already exists.",
+            "No verification means bugs ship with confident explanations.",
+            "Big one-shot requests fail more often than small, checkable steps."
+          ],
+          "weak_example": "build me a habit tracker app",
+          "strong_example": "Goal: add a daily habit check-in to the existing React app.\nContext: state lives in src/store (Zustand); the API client is src/lib/api.ts.\nConstraints: no new dependencies; follow AGENTS.md.\nDone when: tests in habits.test.ts pass and a check-in survives a page reload.\nPropose a plan first. Don't write code until I approve it."
+        },
+        {
+          "id": "ad-anatomy",
+          "kind": "concept",
+          "title": "Anatomy of an agent task",
+          "summary": "A good instruction to a coding agent reads like a ticket a senior engineer would write: the goal, the relevant context, the constraints, and how success will be verified. Add a working mode (plan first, ask before destructive changes) and the agent can work on its own without going off the rails.",
+          "points": [
+            "Goal: the outcome, not the implementation.",
+            "Context: files, interfaces, conventions, and earlier decisions.",
+            "Constraints: what not to touch, dependencies to avoid, style rules.",
+            "Acceptance criteria: tests or observable behaviour that define done.",
+            "Working mode: plan first, take small steps, and know when to stop and ask."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "specify",
+      "title": "Specify",
+      "description": "Turn intent into a spec the agent can execute.",
+      "nodes": [
+        {
+          "id": "vibe-to-spec",
+          "kind": "challenge",
+          "challenge_id": "vibe-to-spec"
+        },
+        {
+          "id": "api-contract",
+          "kind": "challenge",
+          "challenge_id": "api-contract",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "context",
+      "title": "Give context",
+      "description": "Make your codebase's rules part of every task.",
+      "nodes": [
+        {
+          "id": "context-engineering",
+          "kind": "challenge",
+          "challenge_id": "context-engineering"
+        },
+        {
+          "id": "ad-rules-files",
+          "kind": "concept",
+          "title": "Rules files: AGENTS.md and CLAUDE.md",
+          "summary": "Most coding agents read a project rules file on every task: conventions, commands to build and test, architecture boundaries, and things never to touch. Writing it once beats repeating the same context in every prompt, and it keeps every agent on the team consistent.",
+          "points": [
+            "Include the build, test, and lint commands the agent can run to check itself.",
+            "State architecture rules as hard constraints, for example 'all HTTP calls go through lib/api.ts'.",
+            "List files and directories the agent must never modify.",
+            "Keep it short and current. Stale rules are worse than none."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "plan",
+      "title": "Plan & decompose",
+      "description": "Small, ordered, verifiable steps.",
+      "nodes": [
+        {
+          "id": "task-decomposition",
+          "kind": "challenge",
+          "challenge_id": "task-decomposition"
+        },
+        {
+          "id": "reasoning",
+          "kind": "challenge",
+          "challenge_id": "reasoning"
+        }
+      ]
+    },
+    {
+      "id": "verify",
+      "title": "Verify",
+      "description": "Give the agent a finish line and check its work.",
+      "nodes": [
+        {
+          "id": "tests-first",
+          "kind": "challenge",
+          "challenge_id": "tests-first"
+        },
+        {
+          "id": "review-agent",
+          "kind": "challenge",
+          "challenge_id": "review-agent"
+        },
+        {
+          "id": "ad-loop",
+          "kind": "concept",
+          "title": "The agent loop: act, check, fix",
+          "summary": "Agentic tools work in a loop: make a change, run the tests or linter, read the failures, and fix. Your prompt's job is to give that loop a clear finish line and a way to check itself, so the agent iterates toward 'tests pass' instead of 'looks plausible'.",
+          "points": [
+            "Tell the agent which command proves success, for example `pytest -q`.",
+            "Ask it to run checks after every change, not just at the end.",
+            "Cap the loop: after a few failed attempts, stop and report what's blocking.",
+            "Read the diff yourself before merging. Green tests aren't the whole story."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "title": "Operate safely",
+      "description": "Decide what an agent may do on its own.",
+      "nodes": [
+        {
+          "id": "agent-guardrails",
+          "kind": "challenge",
+          "challenge_id": "agent-guardrails"
+        },
+        {
+          "id": "injection-defense",
+          "kind": "challenge",
+          "challenge_id": "injection-defense"
+        }
+      ]
+    },
+    {
+      "id": "scale",
+      "title": "Scale up",
+      "description": "Multiple agents, with humans in the right places.",
+      "nodes": [
+        {
+          "id": "ad-multi",
+          "kind": "concept",
+          "title": "Orchestrating multiple agents",
+          "summary": "Larger tasks can be split across agents: a planner decomposes the work, workers handle independent tasks in parallel, and a reviewer checks the results. Each agent gets a narrow role and a precise prompt, which is everything this roadmap has practised.",
+          "points": [
+            "Give each agent one job and a clear output contract.",
+            "Run independent tasks in parallel and sequence dependent ones.",
+            "Use a reviewer agent or tests as the gate between steps.",
+            "Keep a human approval step for anything irreversible."
+          ],
+          "optional": true
+        },
+        {
+          "id": "ad-human",
+          "kind": "concept",
+          "title": "Human in the loop",
+          "summary": "Autonomy is a dial, not a switch. Decide in advance which actions an agent may take alone, which need review, and which are off-limits, and write that into its instructions.",
+          "points": [
+            "Low risk (reading code, running tests): let the agent proceed.",
+            "Medium risk (editing code): review the diff.",
+            "High risk (deleting data, deploying, spending money): require explicit approval.",
+            "Log what agents did so decisions can be audited later."
+          ]
+        }
+      ]
+    }
+  ]
+}

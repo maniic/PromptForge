@@ -6,6 +6,8 @@ import type {
   ChallengeStats,
   CoachRequest,
   CoachResponse,
+  Roadmap,
+  RoadmapSummary,
   TechniqueReport,
   Track,
 } from '@/types/learn';
@@ -32,6 +34,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function getTracks(): Promise<Track[]> {
   return request<Track[]>('/api/tracks');
+}
+
+export function getRoadmaps(): Promise<RoadmapSummary[]> {
+  return request<RoadmapSummary[]>('/api/roadmaps');
+}
+
+export function getRoadmap(id: string): Promise<Roadmap> {
+  return request<Roadmap>(`/api/roadmaps/${encodeURIComponent(id)}`);
 }
 
 export function getChallenge(id: string): Promise<ChallengeDetail> {

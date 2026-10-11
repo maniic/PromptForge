@@ -1,0 +1,130 @@
+{
+  "id": "prompt-engineering",
+  "order": 1,
+  "category": "start",
+  "level": "beginner",
+  "title": "Prompt Engineering",
+  "tagline": "The fundamentals every prompt needs, whatever you build.",
+  "description": "Start here. Learn how models read prompts, then practise the core techniques (specificity, audience, structured output, examples, constraints, reasoning, grounding, and injection defense) on graded challenges.",
+  "sections": [
+    {
+      "id": "mindset",
+      "title": "How models read prompts",
+      "description": "The mental model behind every technique.",
+      "nodes": [
+        {
+          "id": "pe-how-llms-read",
+          "kind": "concept",
+          "title": "How an LLM reads your prompt",
+          "summary": "A language model predicts the most likely continuation of everything in its context. It has no memory of your project, no access to your intent, and can't ask clarifying questions unless you invite it to. Everything it needs has to be in the prompt.",
+          "points": [
+            "The model fills every gap with the statistically typical answer, which is rarely the one you wanted.",
+            "Instructions, data, and examples arrive as one stream of text, so structure and delimiters matter.",
+            "Output format is part of the request: if you don't specify it, you get the model's default.",
+            "Small wording changes can shift results, so test a prompt on several inputs, not one."
+          ]
+        },
+        {
+          "id": "pe-anatomy",
+          "kind": "concept",
+          "title": "Anatomy of a strong prompt",
+          "summary": "Most effective prompts combine a few parts: a role, context, the task, constraints, an output format, and examples when a pattern is hard to describe. Not every prompt needs all of them, but every missing part is a decision you're leaving to the model.",
+          "points": [
+            "Role sets expertise and judgment.",
+            "Context supplies facts the model can't know.",
+            "Constraints say what to include, avoid, and limit.",
+            "Output format makes the result usable by people or code.",
+            "Examples teach patterns faster than descriptions."
+          ],
+          "weak_example": "write something about our product",
+          "strong_example": "You are a product marketer. Using the notes below, write 3 email subject lines (under 50 characters each) announcing the launch to existing customers. Output a numbered list only.\n\nNotes: {{notes}}"
+        }
+      ]
+    },
+    {
+      "id": "foundations",
+      "title": "Foundations",
+      "description": "Specificity, audience, and output contracts.",
+      "nodes": [
+        {
+          "id": "clear-instructions",
+          "kind": "challenge",
+          "challenge_id": "clear-instructions"
+        },
+        {
+          "id": "audience",
+          "kind": "challenge",
+          "challenge_id": "audience"
+        },
+        {
+          "id": "structured-output",
+          "kind": "challenge",
+          "challenge_id": "structured-output"
+        }
+      ]
+    },
+    {
+      "id": "steering",
+      "title": "Steering the model",
+      "description": "Examples, explicit rules, and reasoning.",
+      "nodes": [
+        {
+          "id": "few-shot",
+          "kind": "challenge",
+          "challenge_id": "few-shot"
+        },
+        {
+          "id": "constraints",
+          "kind": "challenge",
+          "challenge_id": "constraints"
+        },
+        {
+          "id": "reasoning",
+          "kind": "challenge",
+          "challenge_id": "reasoning"
+        }
+      ]
+    },
+    {
+      "id": "trust",
+      "title": "Trustworthy outputs",
+      "description": "Grounding, fallbacks, and injection defense.",
+      "nodes": [
+        {
+          "id": "grounding",
+          "kind": "challenge",
+          "challenge_id": "grounding"
+        },
+        {
+          "id": "injection-defense",
+          "kind": "challenge",
+          "challenge_id": "injection-defense"
+        }
+      ]
+    },
+    {
+      "id": "ship",
+      "title": "Ship it",
+      "description": "Combine techniques and evaluate like an engineer.",
+      "nodes": [
+        {
+          "id": "action-items",
+          "kind": "challenge",
+          "challenge_id": "action-items"
+        },
+        {
+          "id": "pe-evaluate",
+          "kind": "concept",
+          "title": "Evaluate prompts like code",
+          "summary": "A prompt that worked once proves nothing. Treat prompts like code: keep a set of test inputs, define checks for what good looks like, and re-run them every time you change the prompt or the model. That's exactly how every challenge here is graded.",
+          "points": [
+            "Build a small eval set of realistic inputs, including awkward edge cases.",
+            "Prefer deterministic checks (format, required fields, banned content); use an LLM judge only for what code can't check.",
+            "Track scores across prompt versions so regressions are visible.",
+            "Re-run your evals when you switch models; prompts don't always transfer."
+          ]
+        }
+      ]
+    }
+  ]
+}

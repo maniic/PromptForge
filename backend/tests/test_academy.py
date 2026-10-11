@@ -459,3 +459,21 @@ def test_submit_is_default_and_logged(client):
     assert data["mode"] == "submit"
     assert len(data["test_results"]) == len(challenge.test_cases)
     log.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "check, output, expected",
+    [
+        (Check(type="regex_count", value=r"^def test_", min=3, label=""), "def test_a\ndef test_b\ndef test_c", True),
+        (Check(type="regex_count", value=r"^def test_", min=3, label=""), "def test_a\ndef test_b", False),
+        (Check(type="regex_count", value=r";", max=1, label=""), "SELECT 1; SELECT 2;", False),
+        (Check(type="regex_count", value=r"T\d", min=1, max=2, label=""), "T1 T2", True),
+    ],
+)
+def test_regex_count(check, output, expected):
+    assert run_check(check, output).passed is expected
+
+
+def test_regex_count_explains_bounds():
+    result = run_check(Check(type="regex_count", value=r"x", min=2, label=""), "x")
+    assert result.detail == "found 1 (expected at least 2)"

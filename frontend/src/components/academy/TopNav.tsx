@@ -7,6 +7,7 @@ import { useProgress } from '@/lib/progress';
 import { cn } from '@/lib/utils';
 
 const NAV = [
+  { href: '/roadmaps', label: 'Roadmaps', match: ['/roadmaps'] },
   { href: '/problems', label: 'Problems', match: ['/problems', '/challenge'] },
   { href: '/lab', label: 'Lab', match: ['/lab'] },
   { href: '/library', label: 'Library', match: ['/library'] },
@@ -34,7 +35,7 @@ export function TopNav({ children }: { children?: React.ReactNode }) {
     <header className="sticky top-0 z-40 h-12 border-b border-line bg-[rgba(13,14,16,0.88)] backdrop-blur">
       <div className="flex h-full items-center gap-3 px-4 sm:gap-6">
         <Logo />
-        <nav className="flex h-full items-center gap-1">
+        <nav className="no-scrollbar flex h-full items-center gap-1 overflow-x-auto">
           {NAV.map(({ href, label, match }) => {
             const active = match.some((m) => pathname.startsWith(m));
             return (

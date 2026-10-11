@@ -9,6 +9,8 @@ Endpoints:
   POST /api/challenges/{id}/attempt        — run + grade the learner's prompt on Granite
   POST /api/coach                          — Socratic hint at level 1-3
   POST /api/techniques                     — static technique detection (no AI call)
+  GET  /api/roadmaps                       — roadmap summaries (for the roadmap picker)
+  GET  /api/roadmaps/{id}                  — full roadmap: sections, concept and challenge nodes
 
 Thin by design: logic lives in learn_service / curriculum_service.
 """
@@ -22,6 +24,8 @@ from backend.models.learn import (
     AttemptResponse,
     ChallengeDetail,
     ChallengeStats,
+    Roadmap,
+    RoadmapSummary,
     CoachRequest,
     CoachResponse,
     SolutionResponse,
@@ -30,7 +34,7 @@ from backend.models.learn import (
     Track,
 )
 from backend.services import curriculum_service, learn_service, progress_service
-from backend.services.curriculum_service import ChallengeNotFound
+from backend.services.curriculum_service import ChallengeNotFound, RoadmapNotFound
 from backend.services.granite_service import GraniteError
 from backend.services.learn_service import PromptValidationError
 from backend.services.technique_service import detect_techniques
@@ -91,3 +95,16 @@ async def coach(request: CoachRequest) -> CoachResponse:
 @router.post("/api/techniques", response_model=TechniqueReport)
 async def techniques(request: TechniqueRequest) -> TechniqueReport:
     return detect_techniques(request.prompt)
+
+
+@router.get("/api/roadmaps", response_model=list[RoadmapSummary])
+async def get_roadmaps() -> list[RoadmapSummary]:
+    return curriculum_service.list_roadmaps()
+
+
+@router.get("/api/roadmaps/{roadmap_id}", response_model=Roadmap)
+async def get_roadmap(roadmap_id: str) -> Roadmap:
+    try:
+        return curriculum_service.get_roadmap(roadmap_id)
+    except RoadmapNotFound:
+        raise HTTPException(status_code=404, detail=f"Roadmap '{roadmap_id}' not found")

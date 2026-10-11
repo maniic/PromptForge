@@ -3,24 +3,61 @@
     "id": "foundations",
     "title": "Foundations",
     "description": "What every production prompt needs: specificity, a defined audience, and an output contract code can rely on.",
-    "challenges": ["clear-instructions", "audience", "structured-output"]
+    "challenges": [
+      "clear-instructions",
+      "audience",
+      "structured-output"
+    ]
   },
   {
     "id": "steering",
     "title": "Steering the Model",
     "description": "Shape behaviour with worked examples, explicit rules, and step-by-step reasoning.",
-    "challenges": ["few-shot", "constraints", "reasoning"]
+    "challenges": [
+      "few-shot",
+      "constraints",
+      "reasoning"
+    ]
   },
   {
     "id": "trust",
     "title": "Trustworthy AI",
     "description": "Make outputs safe to ship: ground answers in context, define fallbacks, and defend against prompt injection.",
-    "challenges": ["grounding", "injection-defense"]
+    "challenges": [
+      "grounding",
+      "injection-defense"
+    ]
   },
   {
     "id": "capstone",
     "title": "Capstone",
     "description": "Combine every technique to automate a real enterprise workflow end to end.",
-    "challenges": ["action-items"]
+    "challenges": [
+      "action-items"
+    ]
+  },
+  {
+    "id": "agentic",
+    "title": "Agentic Development",
+    "description": "Move from vibe coding to directing agents: specs, context, decomposition, tests, guardrails, and review.",
+    "challenges": [
+      "vibe-to-spec",
+      "context-engineering",
+      "task-decomposition",
+      "tests-first",
+      "agent-guardrails",
+      "review-agent"
+    ]
+  },
+  {
+    "id": "fields",
+    "title": "In the Field",
+    "description": "Domain-specific prompting for frontend, backend, data, and platform work.",
+    "challenges": [
+      "accessible-component",
+      "api-contract",
+      "text-to-sql",
+      "dockerfile"
+    ]
   }
 ]
