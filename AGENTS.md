@@ -7,10 +7,10 @@ Reviewer, tester, documentation writer. NOT the primary builder.
 - Find bugs fresh context catches that the builder missed
 - Never make sweeping refactors — flag issues, suggest targeted fixes
 
-## Architecture (same rules as CLAUDE.md)
-All AI calls in granite_service.py only.
-Four Granite calls per request, 3A+3B via asyncio.gather().
-IBM watsonx.ai is the only AI provider.
+## Architecture (full rules in CLAUDE.md)
+All AI calls in granite_service.py only; IBM watsonx.ai is the only provider.
+Independent Granite calls (e.g. every test case in an attempt) via asyncio.gather().
+Challenges are JSON data in backend/curriculum; grading is deterministic first.
 
 ## When reviewing, always check
 1. Hardcoded secrets or API keys anywhere
@@ -18,8 +18,9 @@ IBM watsonx.ai is the only AI provider.
 3. asyncio.gather() used for parallel calls (not sequential)
 4. TypeScript any types
 5. Missing Pydantic validation on API inputs
-6. Prompt injection: can user input manipulate the Granite craft prompt?
-7. Demo reliability: what happens when IBM API is slow or down?
+6. Prompt injection: can learner text manipulate the judge or coach prompts?
+7. Leaks: do public endpoints expose hidden tests, golden outputs, or solutions?
+8. Demo reliability: what happens when IBM API is slow or down?
 
 ## Test rules
 Backend: pytest + pytest-mock + httpx AsyncClient

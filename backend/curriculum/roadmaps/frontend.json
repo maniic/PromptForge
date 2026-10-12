@@ -1,0 +1,86 @@
+{
+  "id": "frontend",
+  "order": 10,
+  "category": "field",
+  "level": "intermediate",
+  "title": "Frontend Engineer",
+  "tagline": "Prompting for UI work: components, accessibility, and design systems.",
+  "description": "Get coding agents to produce UI that passes review: typed, accessible components that reuse your design system, specified before they're built and verified after.",
+  "sections": [
+    {
+      "id": "fe-foundations",
+      "title": "Foundations",
+      "description": "Be specific and set the rules.",
+      "nodes": [
+        {
+          "id": "clear-instructions",
+          "kind": "challenge",
+          "challenge_id": "clear-instructions"
+        },
+        {
+          "id": "constraints",
+          "kind": "challenge",
+          "challenge_id": "constraints"
+        }
+      ]
+    },
+    {
+      "id": "fe-specify",
+      "title": "Specify UI work",
+      "description": "Describe the component you actually need.",
+      "nodes": [
+        {
+          "id": "vibe-to-spec",
+          "kind": "challenge",
+          "challenge_id": "vibe-to-spec"
+        },
+        {
+          "id": "accessible-component",
+          "kind": "challenge",
+          "challenge_id": "accessible-component"
+        }
+      ]
+    },
+    {
+      "id": "fe-context",
+      "title": "Context",
+      "description": "Your codebase and design system, in the prompt.",
+      "nodes": [
+        {
+          "id": "context-engineering",
+          "kind": "challenge",
+          "challenge_id": "context-engineering"
+        },
+        {
+          "id": "fe-design-system",
+          "kind": "concept",
+          "title": "Your design system is context",
+          "summary": "Agents default to generic UI. Give them your design tokens, your component library, and an existing component as an example, and they'll compose your system instead of inventing a new one.",
+          "points": [
+            "Name the component library and say 'reuse before creating'.",
+            "Paste one well-written existing component as a style example.",
+            "Refer to design tokens (spacing, colour names), not raw hex values.",
+            "State accessibility requirements explicitly, every time."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fe-verify",
+      "title": "Verify",
+      "description": "Tests and review for UI code.",
+      "nodes": [
+        {
+          "id": "tests-first",
+          "kind": "challenge",
+          "challenge_id": "tests-first"
+        },
+        {
+          "id": "review-agent",
+          "kind": "challenge",
+          "challenge_id": "review-agent"
+        }
+      ]
+    }
+  ]
+}

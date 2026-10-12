@@ -1,0 +1,145 @@
+{
+  "id": "task-decomposition",
+  "track": "agentic",
+  "title": "Break it down",
+  "technique": "Task decomposition",
+  "difficulty": "intermediate",
+  "brief": "Agents fail on big, fuzzy tasks and succeed on small, verifiable ones. Turn an epic into ONLY a JSON array of 4 to 8 tasks. Each task: {\"id\": \"T1\", \"title\": ..., \"depends_on\": [task ids], \"done_when\": a verifiable check}. Tasks are numbered T1, T2, ... and the first task has no dependencies.",
+  "lesson": {
+    "summary": "Decomposition turns one risky leap into a sequence of small, checkable steps. Each task should be small enough for one agent session, state what it depends on, and say how you'll verify it's done.",
+    "why_it_matters": "This is how agent orchestration works in practice: a planner breaks work into tasks, workers execute them in dependency order, and each 'done_when' becomes an automated gate. Vague tasks produce vague results.",
+    "weak_example": "do this epic: {{epic}}",
+    "strong_example": "Break the epic into 4–8 tasks. Return ONLY a JSON array of {\"id\": \"T1\", \"title\", \"depends_on\": [], \"done_when\"}. done_when must be objectively verifiable.\n\nEpic: {{epic}}"
+  },
+  "variables": [
+    "epic"
+  ],
+  "starter_prompt": "Make a plan for this: {{epic}}",
+  "test_cases": [
+    {
+      "id": "password-reset",
+      "vars": {
+        "epic": "Add password reset by email to our web app (FastAPI backend, React frontend, PostgreSQL)."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"id\\\"\\s*:\\s*\\\"T\\d+\\\"",
+          "min": 4,
+          "max": 8,
+          "label": "4 to 8 tasks with ids like T1"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"done_when\\\"\\s*:",
+          "min": 4,
+          "label": "Every task has a done_when check"
+        },
+        {
+          "type": "json_field",
+          "path": "0.id",
+          "value": "T1",
+          "label": "First task is T1"
+        },
+        {
+          "type": "json_field",
+          "path": "0.depends_on",
+          "value": "[]",
+          "label": "First task has no dependencies"
+        }
+      ],
+      "golden_output": "[\n  {\n    \"id\": \"T1\",\n    \"title\": \"Add password_reset_tokens table with expiry\",\n    \"depends_on\": [],\n    \"done_when\": \"Migration applies and rolls back cleanly in CI\"\n  },\n  {\n    \"id\": \"T2\",\n    \"title\": \"POST /auth/forgot endpoint that emails a single-use token\",\n    \"depends_on\": [\n      \"T1\"\n    ],\n    \"done_when\": \"Integration test sees one email with a valid token link\"\n  },\n  {\n    \"id\": \"T3\",\n    \"title\": \"POST /auth/reset endpoint that validates the token and sets the password\",\n    \"depends_on\": [\n      \"T1\"\n    ],\n    \"done_when\": \"Tests cover valid, expired, and reused tokens\"\n  },\n  {\n    \"id\": \"T4\",\n    \"title\": \"React forgot-password and reset-password pages\",\n    \"depends_on\": [\n      \"T2\",\n      \"T3\"\n    ],\n    \"done_when\": \"Playwright test completes the full reset flow\"\n  },\n  {\n    \"id\": \"T5\",\n    \"title\": \"Rate-limit forgot-password requests per email\",\n    \"depends_on\": [\n      \"T2\"\n    ],\n    \"done_when\": \"6th request within an hour returns 429\"\n  }\n]"
+    },
+    {
+      "id": "reports",
+      "vars": {
+        "epic": "Move our nightly CSV sales report from a cron script on an old server to a scheduled cloud function that emails the report."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"id\\\"\\s*:\\s*\\\"T\\d+\\\"",
+          "min": 4,
+          "max": 8,
+          "label": "4 to 8 tasks with ids like T1"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"done_when\\\"\\s*:",
+          "min": 4,
+          "label": "Every task has a done_when check"
+        },
+        {
+          "type": "json_field",
+          "path": "0.id",
+          "value": "T1",
+          "label": "First task is T1"
+        },
+        {
+          "type": "json_field",
+          "path": "0.depends_on",
+          "value": "[]",
+          "label": "First task has no dependencies"
+        }
+      ],
+      "golden_output": "[\n  {\n    \"id\": \"T1\",\n    \"title\": \"Extract report generation into a pure function with tests\",\n    \"depends_on\": [],\n    \"done_when\": \"Unit tests produce a CSV byte-identical to last night's report\"\n  },\n  {\n    \"id\": \"T2\",\n    \"title\": \"Package the function for the cloud runtime\",\n    \"depends_on\": [\n      \"T1\"\n    ],\n    \"done_when\": \"Function runs locally in the runtime emulator\"\n  },\n  {\n    \"id\": \"T3\",\n    \"title\": \"Add email delivery with the CSV attached\",\n    \"depends_on\": [\n      \"T2\"\n    ],\n    \"done_when\": \"Test inbox receives the email with a valid CSV\"\n  },\n  {\n    \"id\": \"T4\",\n    \"title\": \"Create the nightly schedule trigger\",\n    \"depends_on\": [\n      \"T3\"\n    ],\n    \"done_when\": \"Trigger fires in staging and logs a successful run\"\n  },\n  {\n    \"id\": \"T5\",\n    \"title\": \"Decommission the old cron job\",\n    \"depends_on\": [\n      \"T4\"\n    ],\n    \"done_when\": \"Old server crontab is empty and the server is stopped\"\n  }\n]"
+    },
+    {
+      "id": "dark-mode",
+      "hidden": true,
+      "vars": {
+        "epic": "Add dark mode to the mobile app: follow the OS setting by default, with a manual override in Settings."
+      },
+      "checks": [
+        {
+          "type": "json_valid",
+          "label": "Output is valid JSON with nothing else around it"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"id\\\"\\s*:\\s*\\\"T\\d+\\\"",
+          "min": 4,
+          "max": 8,
+          "label": "4 to 8 tasks with ids like T1"
+        },
+        {
+          "type": "regex_count",
+          "value": "\\\"done_when\\\"\\s*:",
+          "min": 4,
+          "label": "Every task has a done_when check"
+        },
+        {
+          "type": "json_field",
+          "path": "0.id",
+          "value": "T1",
+          "label": "First task is T1"
+        },
+        {
+          "type": "json_field",
+          "path": "0.depends_on",
+          "value": "[]",
+          "label": "First task has no dependencies"
+        }
+      ],
+      "golden_output": "[\n  {\n    \"id\": \"T1\",\n    \"title\": \"Define light and dark color tokens\",\n    \"depends_on\": [],\n    \"done_when\": \"Every screen's colors come from tokens (lint rule passes)\"\n  },\n  {\n    \"id\": \"T2\",\n    \"title\": \"Theme provider that follows the OS setting\",\n    \"depends_on\": [\n      \"T1\"\n    ],\n    \"done_when\": \"Switching the OS theme updates the app without restart\"\n  },\n  {\n    \"id\": \"T3\",\n    \"title\": \"Settings toggle: System / Light / Dark, persisted\",\n    \"depends_on\": [\n      \"T2\"\n    ],\n    \"done_when\": \"Choice survives an app restart in an end-to-end test\"\n  },\n  {\n    \"id\": \"T4\",\n    \"title\": \"Fix screens with hard-coded colors\",\n    \"depends_on\": [\n      \"T1\"\n    ],\n    \"done_when\": \"Screenshot tests pass in both themes\"\n  }\n]"
+    }
+  ],
+  "rubric": [
+    "Each task is small enough for a single focused agent session",
+    "The done_when conditions are objectively verifiable, not vague"
+  ],
+  "hints": [
+    "If you gave each task in the output to a different agent, would each one know when it's finished?",
+    "This is task decomposition. Ask for a fixed number of small tasks, explicit dependencies, and a verifiable completion check per task, and fix the exact JSON shape, including how ids are numbered.",
+    "Try: 'Return ONLY a JSON array of 4–8 objects {\"id\": \"T1\", \"title\", \"depends_on\": [ids], \"done_when\"}. T1 has depends_on []. done_when must be a test or observable check.'"
+  ],
+  "reference_prompt": "You are a tech lead breaking an epic into tasks that coding agents will execute one at a time.\n\nEpic: {{epic}}\n\nReturn ONLY a JSON array (no markdown, no explanation) of 4 to 8 task objects with exactly these keys:\n- \"id\": \"T1\", \"T2\", ... in order\n- \"title\": a short imperative description\n- \"depends_on\": an array of earlier task ids (T1 must have [])\n- \"done_when\": one objectively verifiable condition, such as a passing test or an observable result\n\nEach task must be small enough to complete in one focused session."
+}

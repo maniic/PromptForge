@@ -8,7 +8,7 @@ Architecture rules (CLAUDE.md):
   - asyncio.get_running_loop().run_in_executor wraps synchronous SDK calls
     so asyncio.gather() achieves true parallelism (IBM SDK is synchronous)
 
-Exports: generate_text, GraniteError, GraniteResponse
+Exports: generate_text, chat, GraniteError, GraniteResponse
 """
 
 import asyncio
@@ -128,4 +128,77 @@ async def generate_text(
     latency_ms = round((time.perf_counter() - t0) * 1000, 1)
     logger.debug("Granite %s completed in %.0f ms", call_name, latency_ms)
 
+    return GraniteResponse(text=text, latency_ms=latency_ms)
+
+
+# Flipped to False the first time the deployment rejects the chat endpoint,
+# so later calls go straight to the templated generate_text fallback.
+_chat_supported = True
+
+
+def _granite_chat_template(prompt: str, system: Optional[str]) -> str:
+    """Render a single-turn conversation in Granite's native chat format."""
+    turns = []
+    if system:
+        turns.append(f"<|start_of_role|>system<|end_of_role|>{system}<|end_of_text|>")
+    turns.append(f"<|start_of_role|>user<|end_of_role|>{prompt}<|end_of_text|>")
+    turns.append("<|start_of_role|>assistant<|end_of_role|>")
+    return "\n".join(turns)
+
+
+async def chat(
+    prompt: str,
+    call_name: str = "unknown",
+    max_tokens: int = 400,
+    temperature: float = 0.0,
+    system: Optional[str] = None,
+) -> GraniteResponse:
+    """
+    Run `prompt` as a user turn through Granite's instruction-tuned chat format.
+
+    Used by PromptForge Academy so a learner's prompt is executed exactly the
+    way a real watsonx.ai application would run it. Falls back to
+    generate_text with Granite's chat template if the deployment does not
+    expose the chat endpoint for this model.
+
+    Raises GraniteError on timeout or SDK failure.
+    """
+    global _chat_supported
+
+    if not _chat_supported:
+        return await generate_text(
+            _granite_chat_template(prompt, system),
+            call_name=call_name,
+            max_tokens=max_tokens,
+            temperature=temperature or None,
+        )
+
+    model = _get_model()
+    messages = [{"role": "system", "content": system}] if system else []
+    messages.append({"role": "user", "content": prompt})
+    params = {"max_tokens": max_tokens, "temperature": temperature}
+
+    loop = asyncio.get_running_loop()
+    t0 = time.perf_counter()
+    try:
+        response: dict = await asyncio.wait_for(
+            loop.run_in_executor(None, lambda: model.chat(messages=messages, params=params)),
+            timeout=90.0,
+        )
+        text = response["choices"][0]["message"]["content"] or ""
+    except asyncio.TimeoutError:
+        raise GraniteError(f"Granite chat timed out ({call_name}): exceeded 90s")
+    except Exception as exc:
+        logger.warning("Granite chat unavailable (%s), falling back to generate_text: %s", call_name, exc)
+        fallback = await generate_text(
+            _granite_chat_template(prompt, system),
+            call_name=call_name,
+            max_tokens=max_tokens,
+            temperature=temperature or None,
+        )
+        _chat_supported = False  # only once the fallback is proven to work
+        return fallback
+
+    latency_ms = round((time.perf_counter() - t0) * 1000, 1)
+    logger.debug("Granite chat %s completed in %.0f ms", call_name, latency_ms)
     return GraniteResponse(text=text, latency_ms=latency_ms)

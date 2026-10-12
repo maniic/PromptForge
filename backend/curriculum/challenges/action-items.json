@@ -1,0 +1,65 @@
+{
+  "id": "action-items",
+  "track": "capstone",
+  "title": "Meeting notes → action items",
+  "technique": "Combining techniques",
+  "difficulty": "advanced",
+  "brief": "Turn messy meeting notes into a JSON array for the project tracker. Each item: {\"owner\": first name, \"task\": short imperative phrase, \"due\": \"YYYY-MM-DD\" or null}. Include only real commitments. Ideas that were rejected, dropped, or parked must be left out.",
+  "lesson": {
+    "summary": "Real-world prompts stack techniques: a role for judgment, delimiters around the input, an exact schema with an example, explicit inclusion and exclusion rules, and a strict output contract. Each one closes a different failure mode.",
+    "why_it_matters": "Action-item extraction is a classic enterprise automation, the kind of workflow teams build into agents with watsonx Orchestrate. Getting it right takes every technique working together.",
+    "weak_example": "Find the action items in these notes: {{transcript}}",
+    "strong_example": "<notes>{{transcript}}</notes>\n\nReturn ONLY a JSON array of {\"owner\", \"task\", \"due\": YYYY-MM-DD or null}. Include only committed tasks; exclude rejected or parked ideas."
+  },
+  "variables": ["transcript"],
+  "starter_prompt": "Find the action items in these meeting notes: {{transcript}}",
+  "test_cases": [
+    {
+      "id": "standup",
+      "vars": {"transcript": "Standup notes, 2026-03-09\nAisha: I'll finish the onboarding redesign mockups by 2026-03-13.\nTom: should we migrate to the new CI system? Maybe later, not this sprint.\nWei: I can write the API docs for the billing endpoints, no hard deadline.\nAisha: also, Tom, can you review my PR before 2026-03-11?\nTom: sure, will do."},
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_array_length", "value": 3, "label": "Exactly 3 committed action items"},
+        {"type": "contains", "value": ["Aisha", "Tom", "Wei"], "label": "Captures every owner"},
+        {"type": "contains", "value": ["2026-03-13", "2026-03-11"], "label": "Due dates in YYYY-MM-DD"},
+        {"type": "regex", "value": "\"due\"\\s*:\\s*null", "label": "Missing deadlines are null"},
+        {"type": "not_contains", "value": "migrat", "label": "Excludes the postponed CI migration"}
+      ],
+      "golden_output": "[{\"owner\": \"Aisha\", \"task\": \"Finish onboarding redesign mockups\", \"due\": \"2026-03-13\"}, {\"owner\": \"Wei\", \"task\": \"Write API docs for billing endpoints\", \"due\": null}, {\"owner\": \"Tom\", \"task\": \"Review Aisha's PR\", \"due\": \"2026-03-11\"}]"
+    },
+    {
+      "id": "marketing",
+      "vars": {"transcript": "Marketing sync, 2026-03-09\nLena will draft the launch blog post, due 2026-03-16.\nWe talked about a podcast tour but agreed it's too expensive. Dropped.\nOmar to send the press kit to three journalists by 2026-03-12.\nLena wondered about a TikTok campaign. Parked for next quarter, no owner."},
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_array_length", "value": 2, "label": "Exactly 2 committed action items"},
+        {"type": "contains", "value": ["Lena", "Omar", "2026-03-16", "2026-03-12"], "label": "Correct owners and due dates"},
+        {"type": "not_contains", "value": ["podcast", "tiktok"], "label": "Excludes dropped and parked ideas"}
+      ],
+      "golden_output": "[{\"owner\": \"Lena\", \"task\": \"Draft the launch blog post\", \"due\": \"2026-03-16\"}, {\"owner\": \"Omar\", \"task\": \"Send press kit to three journalists\", \"due\": \"2026-03-12\"}]"
+    },
+    {
+      "id": "infra",
+      "hidden": true,
+      "vars": {"transcript": "Infra review, 2026-03-09\nPriya: I'll rotate the database credentials by 2026-03-10.\nSam suggested switching cloud regions; the team said no.\nDiego will set up uptime alerts for the payments service, due 2026-03-20.\nPriya will also update the runbook whenever she has time."},
+      "checks": [
+        {"type": "json_valid", "label": "Output is valid JSON with nothing else around it"},
+        {"type": "json_array_length", "value": 3, "label": "Correct number of action items"},
+        {"type": "contains", "value": ["Priya", "Diego", "2026-03-10", "2026-03-20"], "label": "Correct owners and due dates"},
+        {"type": "regex", "value": "\"due\"\\s*:\\s*null", "label": "Missing deadlines are null"},
+        {"type": "not_contains", "value": "region", "label": "Excludes the rejected suggestion"}
+      ],
+      "golden_output": "[{\"owner\": \"Priya\", \"task\": \"Rotate the database credentials\", \"due\": \"2026-03-10\"}, {\"owner\": \"Diego\", \"task\": \"Set up uptime alerts for the payments service\", \"due\": \"2026-03-20\"}, {\"owner\": \"Priya\", \"task\": \"Update the runbook\", \"due\": null}]"
+    }
+  ],
+  "rubric": [
+    "Each task is a short, clear imperative phrase",
+    "No action item is invented or attributed to the wrong person"
+  ],
+  "hints": [
+    "This capstone combines earlier skills. Which of them does your prompt use so far: output format, constraints, examples, delimiters?",
+    "Three things trip people up: the exact JSON schema, filtering out ideas that were rejected or parked, and dates (YYYY-MM-DD or null). Address each one explicitly.",
+    "Structure it as: role → notes inside <notes> tags → schema with one example item → rules (only committed tasks; exclude rejected or parked ideas; due is YYYY-MM-DD or null) → 'Output only the JSON array.'"
+  ],
+  "reference_prompt": "You are a meticulous project manager extracting action items from meeting notes.\n\n<notes>\n{{transcript}}\n</notes>\n\nReturn ONLY a JSON array. Each element must have exactly these keys:\n- \"owner\": the person's first name\n- \"task\": a short imperative phrase (under 10 words)\n- \"due\": the deadline as YYYY-MM-DD, or null if none was given\n\nExample element:\n{\"owner\": \"Sam\", \"task\": \"Update the pricing page\", \"due\": \"2026-02-01\"}\n\nRules:\n- Include only tasks someone committed to doing.\n- Exclude ideas that were rejected, dropped, postponed, or left without an owner.\n- Do not invent tasks, owners, or dates.\n- Output only the JSON array: no markdown, no explanation."
+}

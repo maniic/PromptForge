@@ -1,0 +1,149 @@
+{
+  "id": "accessible-component",
+  "track": "fields",
+  "title": "Accessible UI component",
+  "technique": "Code-generation constraints",
+  "difficulty": "intermediate",
+  "brief": "Ask a coding agent for a React + TypeScript component that meets your team's bar: a typed props interface named <Component>Props, a named function export (export function <Component>), accessible labelling, and Tailwind classes instead of inline styles. No any types. Output only the component code.",
+  "lesson": {
+    "summary": "\"Make a button\" gets you a button. A team-ready component needs the constraints your reviewers enforce stated up front: types, export style, accessibility, and styling approach. Agents follow explicit standards well; they can't follow unwritten ones.",
+    "why_it_matters": "Frontend agents produce plausible UI that quietly fails accessibility audits and design-system rules. Encoding your definition of done in the prompt (or a rules file) turns review comments into first-draft defaults.",
+    "weak_example": "make a {{component}} in react",
+    "strong_example": "Write a React + TypeScript component: {{component}}\nRules: props interface named <Name>Props; `export function <Name>`; accessible name via aria-label or <label>; Tailwind className only, no inline styles; no `any`. Output only the code."
+  },
+  "variables": [
+    "component"
+  ],
+  "starter_prompt": "Make this React component: {{component}}",
+  "test_cases": [
+    {
+      "id": "icon-button",
+      "vars": {
+        "component": "IconButton: a button that renders only an icon (passed in as a ReactNode prop) and calls onClick when pressed."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "(interface|type)\\s+IconButtonProps",
+          "label": "Typed IconButtonProps"
+        },
+        {
+          "type": "regex",
+          "value": "export function IconButton\\(",
+          "label": "Named function export"
+        },
+        {
+          "type": "contains",
+          "value": "className=",
+          "label": "Styled with Tailwind classes"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "style={{",
+            ": any",
+            "<any>"
+          ],
+          "label": "No inline styles or any types"
+        },
+        {
+          "type": "contains",
+          "value": "aria-label",
+          "label": "Icon-only button has an aria-label"
+        }
+      ],
+      "golden_output": "import type { ReactNode } from 'react';\n\ninterface IconButtonProps {\n  icon: ReactNode;\n  label: string;\n  onClick: () => void;\n}\n\nexport function IconButton({ icon, label, onClick }: IconButtonProps) {\n  return (\n    <button\n      type=\"button\"\n      aria-label={label}\n      onClick={onClick}\n      className=\"inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100 focus-visible:outline focus-visible:outline-2\"\n    >\n      {icon}\n    </button>\n  );\n}\n"
+    },
+    {
+      "id": "search-input",
+      "vars": {
+        "component": "SearchInput: a text input with a visible label, a placeholder, and an onChange callback that receives the string value."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "(interface|type)\\s+SearchInputProps",
+          "label": "Typed SearchInputProps"
+        },
+        {
+          "type": "regex",
+          "value": "export function SearchInput\\(",
+          "label": "Named function export"
+        },
+        {
+          "type": "contains",
+          "value": "className=",
+          "label": "Styled with Tailwind classes"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "style={{",
+            ": any",
+            "<any>"
+          ],
+          "label": "No inline styles or any types"
+        },
+        {
+          "type": "regex",
+          "value": "<label|aria-label|aria-labelledby",
+          "label": "Input has an accessible label"
+        }
+      ],
+      "golden_output": "import { useId } from 'react';\n\ninterface SearchInputProps {\n  label: string;\n  placeholder?: string;\n  onChange: (value: string) => void;\n}\n\nexport function SearchInput({ label, placeholder, onChange }: SearchInputProps) {\n  const id = useId();\n  return (\n    <div className=\"flex flex-col gap-1\">\n      <label htmlFor={id} className=\"text-sm font-medium\">\n        {label}\n      </label>\n      <input\n        id={id}\n        type=\"search\"\n        placeholder={placeholder}\n        onChange={(e) => onChange(e.target.value)}\n        className=\"rounded-md border px-3 py-2\"\n      />\n    </div>\n  );\n}\n"
+    },
+    {
+      "id": "toggle",
+      "hidden": true,
+      "vars": {
+        "component": "Toggle: an on/off switch with a text label that calls onChange(checked: boolean) when flipped."
+      },
+      "checks": [
+        {
+          "type": "regex",
+          "value": "(interface|type)\\s+ToggleProps",
+          "label": "Typed ToggleProps"
+        },
+        {
+          "type": "regex",
+          "value": "export function Toggle\\(",
+          "label": "Named function export"
+        },
+        {
+          "type": "contains",
+          "value": "className=",
+          "label": "Styled with Tailwind classes"
+        },
+        {
+          "type": "not_contains",
+          "value": [
+            "style={{",
+            ": any",
+            "<any>"
+          ],
+          "label": "No inline styles or any types"
+        },
+        {
+          "type": "regex",
+          "value": "role=\\\"switch\\\"|aria-checked|type=\\\"checkbox\\\"",
+          "label": "Exposes its on/off state to assistive tech"
+        },
+        {
+          "type": "regex",
+          "value": "<label|aria-label|aria-labelledby",
+          "label": "Has an accessible label"
+        }
+      ],
+      "golden_output": "interface ToggleProps {\n  label: string;\n  checked: boolean;\n  onChange: (checked: boolean) => void;\n}\n\nexport function Toggle({ label, checked, onChange }: ToggleProps) {\n  return (\n    <button\n      type=\"button\"\n      role=\"switch\"\n      aria-checked={checked}\n      aria-label={label}\n      onClick={() => onChange(!checked)}\n      className={checked ? 'h-6 w-11 rounded-full bg-blue-600' : 'h-6 w-11 rounded-full bg-gray-300'}\n    />\n  );\n}\n"
+    }
+  ],
+  "rubric": [
+    "The component is idiomatic React and would work as described"
+  ],
+  "hints": [
+    "Compare your prompt with the team's bar in the brief. Which of those rules would the agent have to guess?",
+    "This is about constraining code generation. List every non-negotiable as an explicit rule: naming, export style, typing, accessibility, and styling. Generic instructions like 'make it good' don't work.",
+    "Add a 'Rules:' list: props interface named <Name>Props; `export function <Name>`; aria-label or <label>; Tailwind className only, never style={{}}; never use any. Output only code."
+  ],
+  "reference_prompt": "You are a senior frontend engineer on a team with strict component standards.\n\nWrite a React + TypeScript component: {{component}}\n\nRules (all mandatory):\n- Declare the props as `interface <ComponentName>Props`.\n- Export it as a named function: `export function <ComponentName>(...)`.\n- It must be accessible: interactive elements need an accessible name (aria-label or an associated <label>), and stateful controls expose their state (for example role=\"switch\" with aria-checked).\n- Style only with Tailwind classes in className. Never use inline style={{...}}.\n- Never use the `any` type.\n\nOutput only the component code, with no explanation."
+}

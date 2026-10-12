@@ -36,7 +36,7 @@ export default function ForgeApp() {
       // Auto-forge after brief delay
       const timer = setTimeout(() => {
         handleForge(decoded);
-        window.history.replaceState({}, '', '/');
+        window.history.replaceState({}, '', '/lab');
       }, 600);
       return () => clearTimeout(timer);
     }

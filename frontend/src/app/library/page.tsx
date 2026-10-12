@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { Loader2 } from 'lucide-react';
+import { TopNav } from '@/components/academy/TopNav';
 import { getLibrary } from '@/lib/api';
 import type { LibrarySummary } from '@/types/api';
 import { LibraryCard } from '@/components/library/LibraryCard';
@@ -31,21 +31,15 @@ export default function LibraryPage() {
   }, [activeCategory]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] px-4 sm:px-6 py-8 sm:py-12">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen">
+      <TopNav />
+      <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#555] hover:text-white transition-colors mb-6"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            Back to PromptForge
-          </Link>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight gradient-text-red mb-2">
+          <h1 className="text-2xl font-semibold tracking-tight mb-1">
             Community Library
           </h1>
-          <p className="text-sm text-[#666] max-w-lg">
+          <p className="text-sm text-fg-subtle max-w-lg">
             Expert prompts forged by IBM Granite, saved by the community.
           </p>
         </div>

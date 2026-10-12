@@ -87,10 +87,10 @@ export function HeroInput({ onSubmit, onCancel, isLoading, initialInput }: HeroI
           className="text-center space-y-4"
         >
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight gradient-text-red">
-            PromptForge
+            The Lab
           </h1>
           <p className="text-sm sm:text-base text-[#888] max-w-lg mx-auto leading-relaxed">
-            Transform rough ideas into structured, expert-level prompts.
+            Free practice: see what structure does to the same idea, side by side.
             <br className="hidden sm:block" />
             <span className="text-[#666]">Powered by IBM Granite.</span>
           </p>

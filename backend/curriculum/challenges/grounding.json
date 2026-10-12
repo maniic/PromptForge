@@ -1,0 +1,73 @@
+{
+  "id": "grounding",
+  "track": "trust",
+  "title": "Stay grounded",
+  "technique": "Grounding & fallbacks",
+  "difficulty": "intermediate",
+  "brief": "You're building the answer step of a RAG assistant on watsonx.ai. Answer employee questions ONLY from the policy excerpt provided. If the answer isn't in the context, respond with exactly: NOT IN CONTEXT",
+  "lesson": {
+    "summary": "Models are trained to always produce an answer, so they invent plausible ones when information is missing. Grounded prompts restrict the model to the supplied context and define an explicit fallback for 'I don't know'.",
+    "why_it_matters": "This is the core of retrieval-augmented generation (RAG). A confident wrong answer about policy, pricing, or health information is worse than no answer at all.",
+    "weak_example": "{{context}}\n\n{{question}}",
+    "strong_example": "Answer using ONLY the context below. If the answer is not in it, reply exactly: NOT IN CONTEXT\n\n<context>{{context}}</context>\n<question>{{question}}</question>"
+  },
+  "variables": ["context", "question"],
+  "starter_prompt": "{{context}}\n\n{{question}}",
+  "test_cases": [
+    {
+      "id": "hotel-limit",
+      "vars": {
+        "context": "Acme Corp Travel Policy (2026)\n- Economy class is required for flights under 6 hours.\n- Hotel stays are reimbursed up to $220 per night in major cities and $150 elsewhere.\n- Meals are reimbursed up to $75 per day with itemized receipts.\n- Expense reports must be submitted within 30 days of returning.",
+        "question": "What is the nightly hotel limit in a major city?"
+      },
+      "checks": [
+        {"type": "contains", "value": "220", "label": "Answers $220 from the policy"},
+        {"type": "not_contains", "value": "NOT IN CONTEXT", "label": "Does not refuse an answerable question"}
+      ],
+      "golden_output": "Hotels in major cities are reimbursed up to $220 per night."
+    },
+    {
+      "id": "pets",
+      "vars": {
+        "context": "Acme Corp Travel Policy (2026)\n- Economy class is required for flights under 6 hours.\n- Hotel stays are reimbursed up to $220 per night in major cities and $150 elsewhere.\n- Meals are reimbursed up to $75 per day with itemized receipts.\n- Expense reports must be submitted within 30 days of returning.",
+        "question": "Can employees bring their pets on business trips?"
+      },
+      "checks": [
+        {"type": "equals", "value": "NOT IN CONTEXT", "label": "Responds exactly NOT IN CONTEXT"}
+      ],
+      "golden_output": "NOT IN CONTEXT"
+    },
+    {
+      "id": "deadline",
+      "hidden": true,
+      "vars": {
+        "context": "Acme Corp Travel Policy (2026)\n- Economy class is required for flights under 6 hours.\n- Hotel stays are reimbursed up to $220 per night in major cities and $150 elsewhere.\n- Meals are reimbursed up to $75 per day with itemized receipts.\n- Expense reports must be submitted within 30 days of returning.",
+        "question": "How long do I have to submit my expense report?"
+      },
+      "checks": [
+        {"type": "contains", "value": "30", "label": "Answers from the policy"},
+        {"type": "not_contains", "value": "NOT IN CONTEXT", "label": "Does not refuse an answerable question"}
+      ],
+      "golden_output": "You must submit it within 30 days of returning."
+    },
+    {
+      "id": "mileage",
+      "hidden": true,
+      "vars": {
+        "context": "Acme Corp Travel Policy (2026)\n- Economy class is required for flights under 6 hours.\n- Hotel stays are reimbursed up to $220 per night in major cities and $150 elsewhere.\n- Meals are reimbursed up to $75 per day with itemized receipts.\n- Expense reports must be submitted within 30 days of returning.",
+        "question": "What is the mileage reimbursement rate when I use my own car?"
+      },
+      "checks": [
+        {"type": "equals", "value": "NOT IN CONTEXT", "label": "Refuses to guess when the answer is missing"}
+      ],
+      "golden_output": "NOT IN CONTEXT"
+    }
+  ],
+  "rubric": [],
+  "hints": [
+    "What does your prompt tell the model to do when the policy doesn't contain the answer?",
+    "This is grounding with a fallback. Models are trained to be helpful, so they will guess unless you explicitly restrict them to the context and give them an exact phrase for when the answer is missing.",
+    "Try: 'Answer using ONLY the text in the <context> tags. If the answer is not explicitly stated there, reply with exactly: NOT IN CONTEXT'. Put the context and the question in separate tags."
+  ],
+  "reference_prompt": "You answer employee questions using ONLY the company policy provided.\n\n<context>\n{{context}}\n</context>\n\n<question>\n{{question}}\n</question>\n\nRules:\n- Use only facts explicitly stated in the context. Do not use outside knowledge or make assumptions.\n- If the context does not contain the answer, reply with exactly: NOT IN CONTEXT\n- Otherwise, answer in one short sentence."
+}

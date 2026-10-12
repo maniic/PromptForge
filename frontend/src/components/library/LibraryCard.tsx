@@ -75,7 +75,7 @@ export function LibraryCard({ prompt }: LibraryCardProps) {
           {votes}
         </button>
         <Link
-          href={`/?q=${encodeURIComponent(prompt.title)}`}
+          href={`/lab?q=${encodeURIComponent(prompt.title)}`}
           className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium text-[#555] hover:text-white hover:bg-white/5 transition-all duration-200"
         >
           Use this
